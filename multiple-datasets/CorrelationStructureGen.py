@@ -129,5 +129,4 @@ class CorrelationStructureGen:
     #     return int(f(n) / (f(r) * f(n - r)))
 
 
-if __name__ == '__main__':
-    pass
+
