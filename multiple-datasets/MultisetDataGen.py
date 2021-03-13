@@ -54,7 +54,7 @@ class MultisetDataGen_CorrMeans(object):
 
     def generateMixingMatrix(self):
         """
-        computes the mixing matrices 
+        computes the mixing matrices
         Returns:
 
         """
