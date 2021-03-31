@@ -32,3 +32,25 @@ def comb(n, r):
     """
     f = math.factorial
     return int(f(n) / (f(r) * f(n - r)))
+
+
+def arr_sort(x,order='ascending'):
+    """
+
+    Args:
+        order (str): ascending or descending
+        x (np.array): array  to be sorted
+
+    Returns: sorted array and sort index
+
+    """
+    if order == 'ascending':
+        sign = 1
+    elif order == 'descending':
+        sign = -1
+    else:
+        raise Exception("unknown order specified")
+
+    idx = np.argsort(np.array(sign*x))
+    sorted_arr = x[idx]
+    return sorted_arr, idx
