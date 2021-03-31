@@ -47,7 +47,7 @@ class Eval_Evec_test(object):
         aug_dim = np.array([0]*P)
         Rd_mh = Rxx_mH[0]
         aug_dim[0] = m[0]
-        for i in range(1,self.x_cell.shape[0]):
+        for i in range(1,P):
             Rd_mh = block_diag(Rd_mh,Rxx_mH[i])
             aug_dim[i] = aug_dim[i-1]+m[i]
 
@@ -73,7 +73,6 @@ class Eval_Evec_test(object):
         return self.C
 
 
-
     def calc_Eval_Evec(self, mat):
         """
 
@@ -89,10 +88,31 @@ class Eval_Evec_test(object):
         U = U[:, idx]
         return E, U
 
+    def bootstrap(self, data_cell, num_samples):
+        """
+        bootstraps samples out of data_cell and returns bootstrapped samples
+        Args:
+            num_samples (int):
+            data_cell (cell): list of ndarrays for
+
+        Returns: data cell i.e. list of datasets for different modalities bootstrapped from original dataset
+
+        """
+        P = data_cell.shape[0]
+        bs_cell = np.array([0]*P)
+        M = data_cell[0].shape[1]  # number of samples
+        idx_list = list(range(M))
+        bs_idx = np.random.choice(idx_list, replace=True, size=M)
+
+        for i in range(P):
+            bs_cell[i] = data_cell[:, bs_idx]
+
+        return bs_cell
 
 
 
     def main_algo(self):
+
 
 
 
