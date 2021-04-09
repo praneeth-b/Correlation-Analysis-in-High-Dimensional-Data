@@ -19,32 +19,32 @@ class Eval_Evec_test(object):
         self.P_fa_evec = P_fa_evec
         self.B = B
 
-    def augmentData(self, x_cell):
+    def augmentData(self, data_cell):
         """
         Returns: augmented data and covariance matrices of individual data sets and dimension of each dataset
 
         """
-        P = self.x_cell.shape[0]  # number of datasets
-        M = self.x_cell[0].shape[1]  # number of samples
+        P = data_cell.shape[0]  # number of datasets
+        M = data_cell[0].shape[1]  # number of samples
         x_aug = []
         m = []  # dimension of each dataset
         Rxx_mH = np.array([0] * P)
         for i in range(P):
-            x_aug.extend(x_cell)
-            Rxx_mH[i] = sqrtm(inv(np.matmul(x_cell[i], np.transpose(x_cell[i])) / M))
-            m.append(x_cell[i].shape[0])
+            x_aug.extend(data_cell)
+            Rxx_mH[i] = sqrtm(inv(np.matmul(data_cell[i], np.transpose(data_cell[i])) / M))
+            m.append(data_cell[i].shape[0])
         return x_aug, Rxx_mH, m
 
-    def generateInv_RD_cap(self):
+    def generateInv_RD_cap(self, data_cell):
         """
           Returns: Rd square root(inverse of RD matrix)
 
         """
-        P = self.x_cell.shape[0]  # number of datasets
-        M = self.x_cell[0].shape[1]  # number of samples
+        P = data_cell.shape[0]  # number of datasets
+        M = data_cell.shape[1]  # number of samples
 
-        _, Rxx_mH, m = self.augmentData(self.x_cell)
-        aug_dim = np.array([0]*P)
+        _, Rxx_mH, m = self.augmentData(data_cell)
+        aug_dim = np.zeros(P)
         Rd_mh = Rxx_mH[0]
         aug_dim[0] = m[0]
         for i in range(1,P):
@@ -68,9 +68,9 @@ class Eval_Evec_test(object):
 
         """
         R_cap = self.generateR_xx_aug(data_cell)
-        R_d = self.generateInv_RD_cap()
-        self.C = np.matmul(R_d, np.matmul(R_cap, R_d))
-        return self.C
+        R_d = self.generateInv_RD_cap(data_cell)
+        C = np.matmul(R_d, np.matmul(R_cap, R_d))
+        return C
 
 
     def calc_Eval_Evec(self, mat):
@@ -88,7 +88,7 @@ class Eval_Evec_test(object):
         U = U[:, idx]
         return E, U
 
-    def bootstrap(self, data_cell, num_samples):
+    def bootstrap(self, data_cell, num_samples=0):
         """
         bootstraps samples out of data_cell and returns bootstrapped samples
         Args:
@@ -112,6 +112,20 @@ class Eval_Evec_test(object):
 
 
     def main_algo(self):
+        Cxx_aug = self.generate_C(self.x_cell)
+        E, U = self.calc_Eval_Evec(Cxx_aug)
+        E_star_matrix = []
+        U_star_matrix = []
+        for b in range(self.B):
+            x_cell_star = self.bootstrap(self.x_cell)
+            Cxx_aug_star = self.generate_C(x_cell_star)
+            E_star, U_star = self.calc_Eval_Evec(Cxx_aug_star)
+            E_star_matrix.append(E_star)
+            U_star_matrix.append(U_star)
+
+        E_star_matrix = np.array(E_star_matrix)
+        U_star_matrix = np.array(U_star_matrix)
+
 
 
 
