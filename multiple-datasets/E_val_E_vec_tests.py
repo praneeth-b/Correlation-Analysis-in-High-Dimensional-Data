@@ -2,7 +2,9 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.linalg import sqrtm, block_diag
 import scipy as sp
-from helper import arr_sort
+from helper import arr_sort, list_find
+from hypothesis_test import Hypothesis_Test
+from itertools import combinations
 
 class Eval_Evec_test(object):
     def __init__(self, X_cell, P_fa_eval, P_fa_evec, B):
@@ -68,9 +70,9 @@ class Eval_Evec_test(object):
 
         """
         R_cap = self.generateR_xx_aug(data_cell)
-        R_d = self.generateInv_RD_cap(data_cell)
+        R_d, aug_dim = self.generateInv_RD_cap(data_cell)
         C = np.matmul(R_d, np.matmul(R_cap, R_d))
-        return C
+        return C, aug_dim
 
 
     def calc_Eval_Evec(self, mat):
@@ -112,8 +114,10 @@ class Eval_Evec_test(object):
 
 
     def main_algo(self):
-        Cxx_aug = self.generate_C(self.x_cell)
+        Cxx_aug, aug_dim = self.generate_C(self.x_cell)
         E, U = self.calc_Eval_Evec(Cxx_aug)
+        P = self.x_cell.shape[0]  # number of datasets
+
         E_star_matrix = []
         U_star_matrix = []
         for b in range(self.B):
@@ -125,6 +129,29 @@ class Eval_Evec_test(object):
 
         E_star_matrix = np.array(E_star_matrix)
         U_star_matrix = np.array(U_star_matrix)
+
+        m_min = self.x_cell[0].shape[0]  # assuming all datasets have same num of features.
+        d_cap = Hypothesis_Test.Eigen_value_test(P, m_min, self.P_fa_eval, E, E_star_matrix, self.B)
+        U_struc = Hypothesis_Test.Eigen_vector_test(P, aug_dim, self.P_fa_evec, d_cap, U, U_star_matrix, self.B)
+
+        # compute the correllation map
+        x_corrs = list(combinations(range(1, P+1), 2))
+        n_comb = len(x_corrs)
+
+        corr_struc = np.zeros((n_comb, m_min))
+        corr_struc[:, 1:d_cap] = np.ones((n_comb, d_cap))
+
+        for s in range(d_cap):
+            for p in range(P):
+                if U_struc[s,p] == 0:
+                    i1 = list_find(x_corrs, p)
+                    for idx in range(len(i1)):
+                        iz = i1[idx]
+                        corr_struc[iz, s] = 0
+
+        corr_struc = np.transpose(corr_struc)
+        return corr_struc, d_cap
+
 
 
 

@@ -34,7 +34,7 @@ def comb(n, r):
     return int(f(n) / (f(r) * f(n - r)))
 
 
-def arr_sort(x,order='ascending'):
+def arr_sort(x, order='ascending'):
     """
 
     Args:
@@ -51,6 +51,24 @@ def arr_sort(x,order='ascending'):
     else:
         raise Exception("unknown order specified")
 
-    idx = np.argsort(np.array(sign*x))
+    idx = np.argsort(np.array(sign * x))
     sorted_arr = x[idx]
     return sorted_arr, idx
+
+
+def list_find(lst, val):
+    """
+    search for an item in a list of tuples and return it's index
+    Args:
+        lst ():
+        val ():
+
+    Returns:
+
+    """
+    idx = []
+    for i in range(len(lst)):
+        if val in lst[i]:
+            idx.append(i)
+
+    return idx
