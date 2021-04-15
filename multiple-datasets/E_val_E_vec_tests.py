@@ -26,24 +26,24 @@ class Eval_Evec_test(object):
         Returns: augmented data and covariance matrices of individual data sets and dimension of each dataset
 
         """
-        P = data_cell.shape[0]  # number of datasets
+        P = len(data_cell)  # number of datasets
         M = data_cell[0].shape[1]  # number of samples
         x_aug = []
         m = []  # dimension of each dataset
-        Rxx_mH = np.array([0] * P)
+        Rxx_mH = [0] * P
         for i in range(P):
-            x_aug.extend(data_cell)
+            x_aug.extend(data_cell[i])
             Rxx_mH[i] = sqrtm(inv(np.matmul(data_cell[i], np.transpose(data_cell[i])) / M))
             m.append(data_cell[i].shape[0])
-        return x_aug, Rxx_mH, m
+        return np.array(x_aug), Rxx_mH, m
 
     def generateInv_RD_cap(self, data_cell):
         """
           Returns: Rd square root(inverse of RD matrix)
 
         """
-        P = data_cell.shape[0]  # number of datasets
-        M = data_cell.shape[1]  # number of samples
+        P = len(data_cell)  # number of datasets
+        M = data_cell[0].shape[1]  # number of samples
 
         _, Rxx_mH, m = self.augmentData(data_cell)
         aug_dim = np.zeros(P)
@@ -100,29 +100,29 @@ class Eval_Evec_test(object):
         Returns: data cell i.e. list of datasets for different modalities bootstrapped from original dataset
 
         """
-        P = data_cell.shape[0]
-        bs_cell = np.array([0]*P)
+        P = len(data_cell)
+        bs_cell = [0]*P
         M = data_cell[0].shape[1]  # number of samples
         idx_list = list(range(M))
         bs_idx = np.random.choice(idx_list, replace=True, size=M)
 
         for i in range(P):
-            bs_cell[i] = data_cell[:, bs_idx]
+            bs_cell[i] = data_cell[i][:, bs_idx]
 
         return bs_cell
 
 
 
-    def main_algo(self):
+    def find_structure(self):
         Cxx_aug, aug_dim = self.generate_C(self.x_cell)
         E, U = self.calc_Eval_Evec(Cxx_aug)
-        P = self.x_cell.shape[0]  # number of datasets
+        P = len(self.x_cell)  # number of datasets
 
         E_star_matrix = []
         U_star_matrix = []
         for b in range(self.B):
             x_cell_star = self.bootstrap(self.x_cell)
-            Cxx_aug_star = self.generate_C(x_cell_star)
+            Cxx_aug_star, _ = self.generate_C(x_cell_star)
             E_star, U_star = self.calc_Eval_Evec(Cxx_aug_star)
             E_star_matrix.append(E_star)
             U_star_matrix.append(U_star)
@@ -131,19 +131,19 @@ class Eval_Evec_test(object):
         U_star_matrix = np.array(U_star_matrix)
 
         m_min = self.x_cell[0].shape[0]  # assuming all datasets have same num of features.
-        d_cap = Hypothesis_Test.Eigen_value_test(P, m_min, self.P_fa_eval, E, E_star_matrix, self.B)
-        U_struc = Hypothesis_Test.Eigen_vector_test(P, aug_dim, self.P_fa_evec, d_cap, U, U_star_matrix, self.B)
+        d_cap = Hypothesis_Test().Eigen_value_test(P, m_min, self.P_fa_eval, E, E_star_matrix, self.B)
+        U_struc = Hypothesis_Test().Eigen_vector_test(P, aug_dim, self.P_fa_evec, d_cap, U, U_star_matrix, self.B)
 
         # compute the correllation map
         x_corrs = list(combinations(range(1, P+1), 2))
         n_comb = len(x_corrs)
 
         corr_struc = np.zeros((n_comb, m_min))
-        corr_struc[:, 1:d_cap] = np.ones((n_comb, d_cap))
+        corr_struc[:, :d_cap] = np.ones((n_comb, d_cap))
 
         for s in range(d_cap):
             for p in range(P):
-                if U_struc[s,p] == 0:
+                if U_struc[s, p] == 0:
                     i1 = list_find(x_corrs, p)
                     for idx in range(len(i1)):
                         iz = i1[idx]

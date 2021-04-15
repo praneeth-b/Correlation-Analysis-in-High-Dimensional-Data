@@ -65,9 +65,9 @@ class Hypothesis_Test(object):
                 if p == 1:
                     dim1 = 1
                 else:
-                    dim1 = aug_dim[p - 1] + 1
+                    dim1 = int(aug_dim[p - 1] + 1)
 
-                dim2 = aug_dim[p]
+                dim2 = int(aug_dim[p])
                 T = np.sum(np.square(U[dim1:dim2, i]))
                 Indicator = 0
                 for b in range(B):
