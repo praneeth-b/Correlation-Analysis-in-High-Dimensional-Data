@@ -3,8 +3,9 @@ from itertools import combinations
 import random
 import math
 import scipy as sp
+import scipy.linalg as spl
 
-from helper import ismember, comb
+from helper import ismember, comb, list_find
 
 
 class MultisetDataGen_CorrMeans(object):
@@ -12,7 +13,7 @@ class MultisetDataGen_CorrMeans(object):
     Generate Multiple datasets with prescribed correlation structure
     """
 
-    def __init__(self, subspace_dims, signum, x_corrs, mixing, sigmaN, color, n_sets, p, sigma_signals, M, MAcoeff,
+    def __init__(self, subspace_dims, signum, x_corrs, mixing, sigmad, sigmaf,  sigmaN, color, n_sets, p, sigma_signals, M, MAcoeff,
                  ARcoeff, Distr):
         """
 
@@ -45,12 +46,13 @@ class MultisetDataGen_CorrMeans(object):
         self.MAcoeff = MAcoeff
         self.ARcoeff = ARcoeff
         self.Distr = Distr
-
+        self.sigmad = sigmad
+        self.sigmaf = sigmaf
         self.R = np.zeros((self.n_sets * self.signum, self.n_sets * self.signum))
-        self.A = np.array([0] * self.n_sets)
-        self.S = np.array([0] * self.n_sets)
-        self.N = np.array([0] * self.n_sets)
-        self.X = np.array([0] * self.n_sets)
+        self.A = [0] * self.n_sets
+        self.S = [0] * self.n_sets
+        self.N = [0] * self.n_sets
+        self.X = [0] * self.n_sets
 
     def generateMixingMatrix(self):
         """
@@ -58,10 +60,10 @@ class MultisetDataGen_CorrMeans(object):
         Returns:
 
         """
-
+        print(self.mixing)
         if self.mixing == 'orth':
             for i in range(self.n_sets):
-                orth_Q, orth_R = np.linalg.qr(np.random.randn(self.subspace_dims[i], self.signum))
+                orth_Q = spl.orth(np.random.randn(self.subspace_dims[i], self.signum)) #np.linalg.qr(np.random.randn(self.subspace_dims[i], self.signum))
                 self.A[i] = orth_Q
 
         elif self.mixing == 'randn':
@@ -79,23 +81,31 @@ class MultisetDataGen_CorrMeans(object):
         """
         Rxy = [0] * comb(self.n_sets, 2)
         for i in range(len(self.x_corrs)):
-            Rxy[i] = np.sqrt(np.diag(self.sigma_signals[i, :]) * np.diag(self.sigma_signals[i:, ])) * np.diag(
+            Rxy[i] = np.sqrt(np.diag(self.sigma_signals[i, :]) * np.diag(self.sigma_signals[i,: ])) * np.diag(
                 self.p[i, :])
 
         # Assemble correlation matrices into augmented block correlation matrix
         for i in range(self.n_sets):
-            t = np.sum(self.x_corrs == i, 1)
-            temp = self.sigma_signals[np.nonzero(t), :] == self.sigmad
+            t= np.zeros(len(self.x_corrs))
+            idx = list_find(self.x_corrs, i)
+            t[idx] = 1
+            temp = self.sigma_signals[idx, :] == self.sigmad
             temp = temp.max(0)
             self.R[i * self.signum: (i + 1) * self.signum, i * self.signum: (i + 1) * self.signum] = np.diag(
                 temp * self.sigmad + np.logical_not(temp) * self.sigmaf)  # recheck the indices
 
-            for j in range(i + 1, self.n_sets):  # check this again
-                a = np.sum(self.x_corrs == 1, 1)
-                b = np.sum(self.x_corrs == j, 2)
+            for j in range(i+1 , self.n_sets):  # check this again
+                a = np.zeros(len(self.x_corrs))
+                b = np.zeros(len(self.x_corrs))
+                idxa = list_find(self.x_corrs, i)
+                idxb = list_find(self.x_corrs, j)
+                a[idxa] = 1
+                b[idxb] = 1
+                # a = np.sum(self.x_corrs == i, 1)
+                # b = np.sum(self.x_corrs == j, 2)
                 c = np.nonzero(np.multiply(a, b))
-                self.R[i * self.signum: (i + 1) * self.signum, j * self.signum: (j + 1) * self.signum] = Rxy[c]
-                self.R[j * self.signum: (j + 1) * self.signum, i * self.signum: (i + 1) * self.signum] = Rxy[c]
+                self.R[i * self.signum: (i + 1) * self.signum, j * self.signum: (j + 1) * self.signum] = Rxy[int(c[0])]
+                self.R[j * self.signum: (j + 1) * self.signum, i * self.signum: (i + 1) * self.signum] = Rxy[int(c[0])]
 
         # add a return if needed
 
@@ -106,7 +116,7 @@ class MultisetDataGen_CorrMeans(object):
 
         """
         if self.Distr == 'gaussian':
-            fullS = sp.linalg.sqrtm(self.R) * np.random.randn(self.n_sets * self.signum, self.M)
+            fullS = np.matmul(sp.linalg.sqrtm(self.R),  np.random.randn(self.n_sets * self.signum, self.M))
 
         elif self.Distr == 'laplacian':
             signum_aug = self.n_sets * self.signum
@@ -133,7 +143,7 @@ class MultisetDataGen_CorrMeans(object):
         """
 
         if self.color == 'white':
-            pass
+            return
 
         if self.color == 'colored':
             for i in range(self.n_sets):
@@ -151,6 +161,20 @@ class MultisetDataGen_CorrMeans(object):
         """
 
         for i in range(self.n_sets):
-            self.X[i] = self.A[i] * self.S[i] + self.N[i]
+            self.X[i] = self.A[i] @ self.S[i] + self.N[i]
 
         return self.X
+
+    def generate(self):
+        """
+
+        Returns: X, R , A, S
+
+        """
+        self.generateMixingMatrix()
+        self.generateBlockCorrelationMatrix()
+        self.generateData()
+        self.filterNoise()
+        self.generateNoiseObservation()
+
+        return self.X, self.R, self.A, self.S
