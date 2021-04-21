@@ -2,6 +2,7 @@ import numpy as np
 from itertools import combinations
 from MultisetDataGen import MultisetDataGen_CorrMeans
 from E_val_E_vec_tests import Eval_Evec_test
+from graph_visu import visualization
 
 n_sets = 4  # of data sets
 signum = 7  # # of correlated + independent signals per set
@@ -60,4 +61,8 @@ Pfa_evec = 0.05
 B = 1000
 
 corr_est, d_cap = Eval_Evec_test(X, Pfa_eval, Pfa_evec, B).find_structure()
+print (x_corrs)
+
+viz = visualization(corr_est, x_corrs, signum, n_sets)
+viz.visualize()
 print("done")
