@@ -108,6 +108,10 @@ class Eval_Evec_test(object):
 
         for i in range(P):
             bs_cell[i] = data_cell[i][:, bs_idx]
+            # make the bootstrapped samples zero mean by subtracting the mean from the samples
+            temp1 = np.mean(bs_cell[i], 1)
+            bs_mean = np.transpose(np.tile(temp1, (M, 1)))
+            bs_cell[i] = bs_cell[i] - bs_mean
 
         return bs_cell
 
