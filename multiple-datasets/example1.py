@@ -4,6 +4,8 @@ from MultisetDataGen import MultisetDataGen_CorrMeans
 from E_val_E_vec_tests import Eval_Evec_test
 from graph_visu import visualization
 
+# this is to simulate example-1 scene-1 of the matlab based repo!
+
 n_sets = 4  # of data sets
 signum = 7  # # of correlated + independent signals per set
 tot_dims = 7  # # of sensors per set
@@ -23,7 +25,7 @@ color = 'white'  # noise type ('white'/'colored')
 MAcoeff = [1]  # moving average coefficients for colored noise
 ARcoeff = [1]  # auto-regressive coefficients for colored noise
 maxIters = 99  # maximum # of random draws allowed to find a positive definite covariance matrix
-verbose = 1  # variable to print iteration counter
+
 
 x_corrs = list(combinations(range(n_sets), 2))
 subspace_dim = np.array([tot_dims] * n_sets)
@@ -43,7 +45,7 @@ n_combs = len(x_corrs)
 
 ## add a loop here for iterating over snr vec
 
-sigmaN = 10
+sigmaN = 0.0316
 print("ready")
 ## add a loop to iterate over num_iter
 

@@ -29,8 +29,8 @@ class visualization(object):
             for j in range(len(self.edge_list)):
                 if self.graph_matrix[i, j] == 1:
                     g_list[i].add_edge(*self.edge_list[j])
-            self.axes[i].set_title('signal '+str(i))
-            nx.draw_networkx(g_list[i], with_labels=True,font_weight='bold', ax=self.axes[i])
+            self.axes[i].set_title('signal '+str(i+1))
+            nx.draw_networkx(g_list[i], with_labels=True, font_weight='bold', ax=self.axes[i])
 
         plt.show()
 
