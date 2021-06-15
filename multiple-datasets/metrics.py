@@ -25,4 +25,4 @@ class Metrics(object):
         except ZeroDivisionError:
             recall = 0
 
-            return precision, recall
+        return precision, recall
