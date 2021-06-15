@@ -23,7 +23,7 @@ class Hypothesis_Test(object):
         Lambda_star_matrix = E_star_matrix - 1
         smax = m_min - 1  # assuming all datasets have same dimension
 
-        for s in range(smax + 1):
+        for s in range(-1, smax):
             T = np.sum(np.square(Lambda[s + 1:s + P]))
             Indicators = 0
             for b in range(B):
@@ -34,10 +34,10 @@ class Hypothesis_Test(object):
 
             p_value = Indicators / B
             if p_value >= P_fa_eval:
-                d_cap = s,
+                d_cap = s+1,
                 break
 
-            if s == smax:
+            if s == smax-1:
                 d_cap = smax
 
         return d_cap
@@ -62,8 +62,8 @@ class Hypothesis_Test(object):
 
             for p in range(P):
                 present = 1
-                if p == 1:
-                    dim1 = 1
+                if p == 0:
+                    dim1 = 0
                 else:
                     dim1 = int(aug_dim[p - 1] + 1)
 
