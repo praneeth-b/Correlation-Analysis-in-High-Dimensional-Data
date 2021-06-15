@@ -133,6 +133,9 @@ class CorrelationStructureGen:
                     else:
                         p[k, j] = 0
                         sigma_signals[k, j] = self.sigmaf
+
+            if self.corrnum < self.signum:
+                sigma_signals[:, self.corrnum: self.signum] = self.sigmaf * np.ones((self.n_combi, self.signum - self.corrnum))
             #minEig = 1
 
             R = self.generateBlockCorrelationMatrix(sigma_signals, p)
