@@ -139,7 +139,8 @@ class Eval_Evec_test(object):
         U_struc = Hypothesis_Test().Eigen_vector_test(P, aug_dim, self.P_fa_evec, d_cap, U, U_star_matrix, self.B)
 
         # compute the correllation map
-        x_corrs = list(combinations(range(1, P+1), 2))
+        x_corrs = list(combinations(range(P), 2))
+        x_corrs = list(reversed(x_corrs))
         n_comb = len(x_corrs)
 
         corr_struc = np.zeros((n_comb, m_min))
@@ -154,7 +155,7 @@ class Eval_Evec_test(object):
                         corr_struc[iz, s] = 0
 
         corr_struc = np.transpose(corr_struc)
-        return corr_struc, d_cap
+        return corr_struc, d_cap , U_struc
 
 
 

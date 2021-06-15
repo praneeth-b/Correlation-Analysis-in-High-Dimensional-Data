@@ -9,7 +9,7 @@ from graph_visu import visualization
 n_sets = 4  # of data sets
 signum = 7  # # of correlated + independent signals per set
 tot_dims = 7  # # of sensors per set
-M = 350  # # of samples per set
+M = 1000  # # of samples per set
 num_iter = 1 * 1e1  # # of trials for each data point
 SNR_vec = np.arange(-10, 15, 3)  # SNR vector ranging from -10 to 15dB
 full_corr = 3  # # of signals correlated across all data sets
@@ -28,6 +28,7 @@ maxIters = 99  # maximum # of random draws allowed to find a positive definite c
 
 
 x_corrs = list(combinations(range(n_sets), 2))
+x_corrs = list(reversed(x_corrs))
 subspace_dim = np.array([tot_dims] * n_sets)
 tot_corr = np.append(np.tile(n_sets, [1, full_corr]), corr_across)
 
@@ -56,15 +57,15 @@ print(X[0].shape)
 corr_truth = np.zeros((n_combs, tot_dims))
 idx_c = np.nonzero(p)
 corr_truth[idx_c] = 1  # this is the ground truth correllation.
-
+corr_truth = np.transpose(corr_truth)
 # evaluate using Evec and Eval tests
 Pfa_eval = 0.05
 Pfa_evec = 0.05
 B = 1000
 
-corr_est, d_cap = Eval_Evec_test(X, Pfa_eval, Pfa_evec, B).find_structure()
-print (x_corrs)
+corr_est, d_cap, u_struc = Eval_Evec_test(X, Pfa_eval, Pfa_evec, B).find_structure()
+print(x_corrs)
 
-viz = visualization(corr_est, x_corrs, signum, n_sets)
+viz = visualization(corr_est, u_struc, x_corrs, signum, n_sets)
 viz.visualize()
 print("done")
