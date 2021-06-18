@@ -7,26 +7,23 @@ from graph_visu import visualization
 from CorrelationStructureGen import CorrelationStructureGen
 from metrics import Metrics
 
-n_sets = 2
-signum = 2
-tot_dims = 2
+n_sets = 4
+signum = 5
+tot_dims = 5
 M = 500
-num_iter = 5
+num_iter = 1
 full_corr = 1
-corr_across = []  #[4, 3]  # % across how many data sets should each
-# % additional signal be correlated?
-# % (vector)
-corr_means = [0.8]  #[.8, .7, .6]  # % mean of the correlation .7 .5 .6
-# % coefficients of each signal for all
-# % data sets
-corr_std = [0.1]  #[.1, .1, .1]  # std of the correlation coefficients
+corr_across = [4,3,2]
+
+corr_means = [0.8, 0.8, 0.8, 0.8]
+corr_std = [0.1, 0.1, 0.1, 0.1]
 # % of each signal for all data sets
 RealComp = 'real'
 Distr = 'gaussian'
 sigmad = 10
 sigmaf = 3
 #sigmaN = 10
-SNR_vec = np.arange(-9, 16, 3)  # % SNR vector ranging from -10 to 15dB
+SNR_vec = [10] #np.arange(-9, 16, 3)  # % SNR vector ranging from -10 to 15dB
 mixing = 'orth'
 color = 'white'
 MAcoeff = 1
@@ -42,7 +39,22 @@ tot_corr = np.append(np.tile(n_sets, [1, full_corr]), corr_across)
 
 corr_obj = CorrelationStructureGen(n_sets, tot_corr,
                                    corr_means, corr_std, signum, sigmad, sigmaf, maxIters)
-p, sigma_signals, R = corr_obj.generate()
+attempts = 4
+ans = "n"
+u_struc=0
+while ans != "y" : #or attempts > 4:
+    p, sigma_signals, R = corr_obj.generate()
+
+    corr_truth = np.zeros((n_combs, tot_dims))
+    idx_c = np.nonzero(p)
+    corr_truth[idx_c] = 1  # this is the ground truth correllation.
+    corr_truth = np.transpose(corr_truth)
+    # visualize input correllation structure
+    viz = visualization(corr_truth, u_struc, x_corrs, signum, n_sets)
+    viz.visualize()
+    ans = input("Continue with generated correlation structure?: y/n" )
+
+
 
 prec_vec = []
 rec_vec = []
@@ -58,11 +70,7 @@ for snr in SNR_vec:
                                             n_sets, p,
                                             sigma_signals, M, MAcoeff, ARcoeff, Distr, R)
         X, R, A, S = datagen.generate()
-        # print(X[0].shape)
-        corr_truth = np.zeros((n_combs, tot_dims))
-        idx_c = np.nonzero(p)
-        corr_truth[idx_c] = 1  # this is the ground truth correllation.
-        corr_truth = np.transpose(corr_truth)
+
         # evaluate using Evec and Eval tests
         Pfa_eval = 0.05
         Pfa_evec = 0.05
@@ -70,7 +78,6 @@ for snr in SNR_vec:
 
         corr_test = Eval_Evec_test(X, Pfa_eval, Pfa_evec, B)
         corr_est, d_cap, u_struc = corr_test.find_structure()
-        # print (x_corrs)
         perf = Metrics(corr_truth, corr_est)
         pr, re = perf.PrecisionRecall()
         precision += pr
@@ -79,7 +86,7 @@ for snr in SNR_vec:
     prec_vec.append(precision/num_iter)
     rec_vec.append(recall/num_iter)
 
-
+plt.ion()
 fig, (ax1, ax2) = plt.subplots(2, 1)
 fig.suptitle('Precion recall plots for various SNR')
 ax1.plot(SNR_vec, prec_vec, 'o-')
@@ -90,3 +97,9 @@ ax2.plot(SNR_vec, rec_vec, 'o-')
 ax2.set_ylabel('Recall')
 ax2.set_xlabel('SNR')
 plt.show()
+
+plt.ioff()
+viz_op = visualization(corr_est, u_struc, x_corrs, signum, n_sets)
+viz_op.visualize()
+
+print("done")

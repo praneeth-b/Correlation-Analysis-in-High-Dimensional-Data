@@ -4,7 +4,7 @@ import numpy as np
 
 
 class visualization(object):
-    def __init__(self, corr_estimate_pairwise, corr_estimate,  x_corr, num_signals, num_dataset, type=1):
+    def __init__(self, corr_estimate_pairwise, corr_estimate=0,  x_corr=0, num_signals=0, num_dataset=0, gtype=1):
         """
 
         Args:
@@ -17,9 +17,10 @@ class visualization(object):
         self.edge_list = x_corr
         self.signals = num_signals
         self.num_nodes = num_dataset
-        self.type = type
+        self.type = gtype
 
     def create_subplots(self, shape):
+
         fig, axes = plt.subplots(*shape)
         self.axes = axes.flatten()
 
@@ -58,10 +59,6 @@ class visualization(object):
 
         return pos
 
-
-
-
-        return pos
 
     def create_type2_graph(self):
         node_list = list(range(self.signals))
