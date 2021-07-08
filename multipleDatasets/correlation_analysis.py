@@ -35,6 +35,7 @@ class MultidimensionalCorrelationAnalysis:
         self.n_combs = len(self.x_corrs)
         self.subspace_dim = np.array([tot_dims] * n_sets)
         self.synthetic_structure = False
+        self.simulation_data_type = self.param['simulation_data_type']
 
     def generate_structure(self, disp_struc=False):
         """
@@ -86,7 +87,7 @@ class MultidimensionalCorrelationAnalysis:
         X, R, A, S = datagen.generate()
         return X
 
-    def simulate(self):
+    def run_syntheticData(self):
         """
         Simulates data for the given correlation sturcture and runs the eval and evec tests on the data to estimate
         the correlation structure Returns:
@@ -141,7 +142,7 @@ class MultidimensionalCorrelationAnalysis:
 
         print("done")
 
-    def run(self, data):
+    def run_realData(self, data):
         """
         Args:
             data (): must be in the form of a list of ndarrays. Dimensions must be consistent with n_sets and signum
@@ -164,3 +165,10 @@ class MultidimensionalCorrelationAnalysis:
         viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
         viz_op.visualize("Estimated_structure")
         return corr_est
+
+    def run(self, *argv):
+        if self.simulation_data_type == 'real':
+            self.run_realData(argv[0])
+
+        if self.simulation_data_type == 'synthetic':
+            self.run_syntheticData()

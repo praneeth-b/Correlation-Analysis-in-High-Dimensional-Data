@@ -24,14 +24,14 @@ estimator = MultidimensionalCorrelationAnalysis(n_sets, signum, tot_dims, M,
                                                 MAcoeff=1,
                                                 ARcoeff=1,
                                                 maxIters=99,
-                                                synthetic_data=False,
+                                                simulation_data_type='synthetic',  # synthetic / real
                                                 Pfa_eval=0.05,
                                                 Pfa_evec=0.05,
                                                 bootstrap_count=1000
                                                 )
 # synthetic data
 estimator.generate_structure()
-estimator.simulate()
+estimator.run()
 
 #to run with real data
 # data = estimator.test_data_gen()
