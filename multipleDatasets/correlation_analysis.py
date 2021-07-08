@@ -34,13 +34,13 @@ class MultidimensionalCorrelationAnalysis:
             self.x_corrs = list(reversed(self.x_corrs))
         self.n_combs = len(self.x_corrs)
         self.subspace_dim = np.array([tot_dims] * n_sets)
+        self.synthetic_structure = False
 
-    def generate_structure(self):
+    def generate_structure(self, disp_struc=False):
         """
-        Generate the correlation structure for synthetic data given the full correlation and corr_across parameters
-        Returns:
 
         """
+
         try:
             if any(y < 2 for y in self.param['corr_across']):
                 raise ValueError("Minimum value of corr_across = 2, i.e. atleast 1 pair of datasets ")
@@ -57,6 +57,7 @@ class MultidimensionalCorrelationAnalysis:
         attempts = 4
         ans = "n"
         u_struc = 0
+
         while ans != "y":  # or attempts > 4:
             self.p, self.sigma_signals, self.R = corr_obj.generate()
 
@@ -65,11 +66,33 @@ class MultidimensionalCorrelationAnalysis:
             corr_truth[idx_c] = 1  # this is the ground truth correllation.
             self.corr_truth = np.transpose(corr_truth)
             # visualize input correllation structure
-            viz = visualization(np.transpose(self.p), u_struc, self.x_corrs, self.signum, self.n_sets)
-            viz.visualize("Generated corr structure")
-            ans = input("Continue with generated correlation structure?: y/n")
+            if disp_struc:
+                viz = visualization(np.transpose(self.p), u_struc, self.x_corrs, self.signum, self.n_sets)
+                viz.visualize("Generated corr structure")
+                ans = input("Continue with generated correlation structure?: y/n")
 
-    def run(self):
+            else:
+                break
+        self.synthetic_structure = True
+
+    def test_data_gen(self, ):
+        sigmaN = 1
+        datagen = MultisetDataGen_CorrMeans(self.subspace_dim, self.signum, self.x_corrs, self.param['mixing'],
+                                            self.param['sigmad'], self.param['sigmaf'], sigmaN,
+                                            self.param['color'],
+                                            self.n_sets, self.p,
+                                            self.sigma_signals, self.M, self.param['MAcoeff'],
+                                            self.param['ARcoeff'], self.param['Distr'], self.R)
+        X, R, A, S = datagen.generate()
+        return X
+
+    def simulate(self):
+        """
+        Simulates data for the given correlation sturcture and runs the eval and evec tests on the data to estimate
+        the correlation structure Returns:
+
+        """
+        assert self.synthetic_structure, " Call the function generate_structure() before calling simulate()"
         prec_vec = []
         rec_vec = []
         for snr in self.param['SNR_vec']:
@@ -88,12 +111,8 @@ class MultidimensionalCorrelationAnalysis:
                                                     self.param['ARcoeff'], self.param['Distr'], self.R)
                 X, R, A, S = datagen.generate()
 
-                # evaluate using Evec and Eval tests
-                Pfa_eval = 0.05
-                Pfa_evec = 0.05
-                B = 1000
-
-                corr_test = Eval_Evec_test(X, Pfa_eval, Pfa_evec, B)
+                corr_test = Eval_Evec_test(X, self.param['Pfa_eval'], self.param['Pfa_evec'],
+                                           self.param['bootstrap_count'])
                 corr_est, d_cap, u_struc = corr_test.find_structure()
                 perf = Metrics(self.corr_truth, corr_est)
                 pr, re = perf.PrecisionRecall()
@@ -117,7 +136,31 @@ class MultidimensionalCorrelationAnalysis:
         viz = visualization(self.corr_truth, u_struc, self.x_corrs, self.signum, self.n_sets)
         viz.visualize("True Structure")
         plt.ioff()
-        viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets)
+        viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
         viz_op.visualize("Estimated_structure")
 
         print("done")
+
+    def run(self, data):
+        """
+        Args:
+            data (): must be in the form of a list of ndarrays. Dimensions must be consistent with n_sets and signum
+        """
+
+        # assert not self.synthetic_structure and self.n_sets == len(data), "mismatch in input provided"
+
+        # evaluate using Evec and Eval tests
+        if 'Pfa_eval' not in self.param:
+            self.param['Pfa_eval'] = 0.05
+        if 'Pfa_evec' not in self.param:
+            self.param['Pfa_evec'] = 0.05
+        if 'bootstrap_count' not in self.param:
+            self.param['bootstrap_count'] = 1000
+        print("dont")
+        corr_test = Eval_Evec_test(data, self.param['Pfa_eval'], self.param['Pfa_evec'],
+                                   self.param['bootstrap_count'])
+        corr_est, d_cap, u_struc = corr_test.find_structure()
+
+        viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
+        viz_op.visualize("Estimated_structure")
+        return corr_est

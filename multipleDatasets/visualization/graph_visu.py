@@ -6,7 +6,7 @@ import numpy as np
 
 
 class visualization(object):
-    def __init__(self, corr_estimate_pairwise, corr_estimate=0, x_corr=0, num_signals=0, num_dataset=0, gtype=1):
+    def __init__(self, corr_estimate_pairwise, corr_estimate=0, x_corr=0, num_signals=0, num_dataset=0, gtype=1, label_edge=True):
         """
 
         Args:
@@ -20,6 +20,7 @@ class visualization(object):
         self.signals = num_signals
         self.num_nodes = num_dataset
         self.type = gtype
+        self.label_edge = label_edge
 
     def create_subplots(self, shape, fig_name):
 
@@ -43,9 +44,10 @@ class visualization(object):
             self.axes[i].set_xlim([-1.25, 1.25])
             self.axes[i].set_ylim([-1.25, 1.25])
             nx.draw_networkx(g_list[i], pos=pos, with_labels=True, font_weight='bold', ax=self.axes[i])
-            labels = nx.get_edge_attributes(g_list[i], 'weight')
-            nx.draw_networkx_edge_labels(g_list[i], pos, edge_labels=labels, font_size=7, ax=self.axes[i],
-                                         label_pos=random.uniform(0.2, 0.8))
+            if self.label_edge:
+                labels = nx.get_edge_attributes(g_list[i], 'weight')
+                nx.draw_networkx_edge_labels(g_list[i], pos, edge_labels=labels, font_size=7, ax=self.axes[i],
+                                             label_pos=random.uniform(0.2, 0.8))
         if self.signals % 2 > 0:
             self.axes[-1].set_visible(False)
         plt.show()

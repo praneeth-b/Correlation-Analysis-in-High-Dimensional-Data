@@ -2,11 +2,11 @@ import numpy as np
 from itertools import combinations
 import random
 import math
-from multipleDatasets.helper import ismember, comb
+
 import scipy as sp
 import scipy.linalg as spl
 
-from multipleDatasets.helper import ismember, comb, list_find
+from multipleDatasets.utils.helper import ismember, comb, list_find
 
 
 class CorrelationStructureGen:
@@ -51,22 +51,7 @@ class CorrelationStructureGen:
         self.R = np.zeros((self.n_sets * self.signum, self.n_sets * self.signum))
 
         assert self.corrnum == np.shape(self.corr_means)[0] == np.shape(self.corr_std)[
-            0], "error('\n\tA mean correlation )"
-        # "and standard deviation need to " \
-        # "be\n\tspecified for each " \
-        # "correlated signal.\n\n\tThe " \
-        # "number of elements in " \
-        # "corr_means is:\t%g\n\tThe " \
-        # "number of elements in corr_std " \
-        # "is:\t\t%g\n\tThe value of " \
-        # "totcorr is:\t\t\t%g\n\n\tThe " \
-        # "value of totcorr is equal to " \
-        # "number of elements " \
-        # "in\n\tcorr_across plus the " \
-        # "value of fullcorr.\n\n\tNo data " \
-        # "has been generated.\n'," \
-        # "size(corr_means,2)," \
-        # "size(corr_std,2),corrnum) "
+            0], "error('\n Dimension mismatch in corrnum, corr_means and corr_std)"
 
     def generateBlockCorrelationMatrix(self, sigma_signals, p):
         """
@@ -102,7 +87,7 @@ class CorrelationStructureGen:
                 self.R[i * self.signum: (i + 1) * self.signum, j * self.signum: (j + 1) * self.signum] = Rxy[int(c[0])]
                 self.R[j * self.signum: (j + 1) * self.signum, i * self.signum: (i + 1) * self.signum] = Rxy[int(c[0])]
         Ev, Uv = np.linalg.eig(self.R)
-        #assert min(Ev) > 0, "negative eigen value !!! "
+        # assert min(Ev) > 0, "negative eigen value !!! "
         print("R ready")
         return self.R
 
@@ -135,8 +120,9 @@ class CorrelationStructureGen:
                         sigma_signals[k, j] = self.sigmaf
 
             if self.corrnum < self.signum:
-                sigma_signals[:, self.corrnum: self.signum] = self.sigmaf * np.ones((self.n_combi, self.signum - self.corrnum))
-            #minEig = 1
+                sigma_signals[:, self.corrnum: self.signum] = self.sigmaf * np.ones(
+                    (self.n_combi, self.signum - self.corrnum))
+            # minEig = 1
 
             R = self.generateBlockCorrelationMatrix(sigma_signals, p)
 
@@ -145,7 +131,8 @@ class CorrelationStructureGen:
             minEig = np.min(e)
             if attempts > self.maxIters and minEig < 0:
                 raise Exception("A positive definite correlation matrix could not be found with prescribed correlation "
-                      "structure. Try providing a different correlation structure or reducing the standard deviation")
+                                "structure. Try providing a different correlation structure or reducing the standard "
+                                "deviation")
 
         return p, sigma_signals, R
 

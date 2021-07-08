@@ -5,7 +5,7 @@ import math
 import scipy as sp
 import scipy.linalg as spl
 
-from multipleDatasets.helper import ismember, comb, list_find
+from multipleDatasets.utils.helper import ismember, comb, list_find
 
 
 class MultisetDataGen_CorrMeans(object):

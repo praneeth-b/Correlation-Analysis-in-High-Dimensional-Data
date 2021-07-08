@@ -1,8 +1,7 @@
 import numpy as np
 import sys
+import os
 
-# insert at 1, 0 is the script path (or '' in REPL)
-sys.path.append('/home/praneeth/projects/sst/git/Correlation-Analysis-in-High-Dimensional-Data/multiple-datasets')
 from multipleDatasets.correlation_analysis import MultidimensionalCorrelationAnalysis
 
 n_sets = 4
@@ -24,10 +23,18 @@ estimator = MultidimensionalCorrelationAnalysis(n_sets, signum, tot_dims, M,
                                                 color='white',
                                                 MAcoeff=1,
                                                 ARcoeff=1,
-                                                maxIters=99
+                                                maxIters=99,
+                                                synthetic_data=False,
+                                                Pfa_eval=0.05,
+                                                Pfa_evec=0.05,
+                                                bootstrap_count=1000
                                                 )
-
+# synthetic data
 estimator.generate_structure()
-estimator.run()
+estimator.simulate()
+
+#to run with real data
+# data = estimator.test_data_gen()
+# estimator.run(data)
 
 print("experiment complete")

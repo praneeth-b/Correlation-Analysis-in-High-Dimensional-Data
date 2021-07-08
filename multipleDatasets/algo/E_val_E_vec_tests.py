@@ -2,7 +2,7 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.linalg import sqrtm, block_diag
 import scipy as sp
-from multipleDatasets.helper import arr_sort, list_find
+from multipleDatasets.utils.helper import arr_sort, list_find
 from multipleDatasets.algo.hypothesis_test import Hypothesis_Test
 from itertools import combinations
 
