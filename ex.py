@@ -4,10 +4,10 @@ import os
 
 from multipleDatasets.correlation_analysis import MultidimensionalCorrelationAnalysis
 
-n_sets = 4
-signum = 4
+n_sets = 4   # number of datasets
+signum = 4   # signals in each dataset
 tot_dims = 4
-M = 200
+M = 200      # data samples
 estimator = MultidimensionalCorrelationAnalysis(n_sets, signum, tot_dims, M,
                                                 num_iter=1,
                                                 full_corr=1,
