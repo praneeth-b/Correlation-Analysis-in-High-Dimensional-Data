@@ -6,7 +6,8 @@ import numpy as np
 
 
 class visualization(object):
-    def __init__(self, corr_estimate_pairwise, corr_estimate=0, x_corr=0, num_signals=0, num_dataset=0, gtype=1, label_edge=True):
+    def __init__(self, corr_estimate_pairwise, corr_estimate=0, x_corr=0, num_signals=0, num_dataset=0, gtype=1,
+                 label_edge=True):
         """
 
         Args:

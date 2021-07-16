@@ -29,7 +29,7 @@ class Hypothesis_Test(object):
             for b in range(B):
                 T2_star = np.sum(Lambda_star_matrix[b, s + 1:s + P])
                 T2_null = T2_star - T
-                if (T <= T2_null):
+                if T <= T2_null:
                     Indicators += 1
 
             p_value = Indicators / B
@@ -44,7 +44,7 @@ class Hypothesis_Test(object):
 
     def Eigen_vector_test(self, P, aug_dim, P_fa_evec, d_cap, U, U_star_matrix, B):
         """
-        Algorithm 2 of the papaer
+        Algorithm 2 of the paper
         Args:
             P ():
             aug_dim ():

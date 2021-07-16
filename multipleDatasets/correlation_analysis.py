@@ -37,10 +37,30 @@ class MultidimensionalCorrelationAnalysis:
         self.synthetic_structure = False
         self.simulation_data_type = self.param['simulation_data_type']
 
+    def calc_input_corr_vals_from_percent(self, corr_list):
+        full_corr = 0
+        corr_accross = []
+        corr_list.sort(reverse=True)
+        for ele in corr_list:
+            if ele == 100:
+                full_corr += 1
+
+            else:
+                ca = int((ele / 100) * self.signum)
+                corr_accross.append(ca)
+        return full_corr, corr_accross
+
     def generate_structure(self, disp_struc=False):
         """
 
         """
+
+        if 'percentage_corr' not in self.param:
+            raise Exception("percentage_corr must be set to True or False")
+        if self.param['percentage_corr']:
+            assert 'corr_input' in self.param, "correlations between signals must be input as a list of percentages"
+            self.param['full_corr'], self.param['corr_across'] = self.calc_input_corr_vals_from_percent(
+                self.param['corr_input'])
 
         try:
             if any(y < 2 for y in self.param['corr_across']):
@@ -55,11 +75,11 @@ class MultidimensionalCorrelationAnalysis:
                                            self.param['corr_means'], self.param['corr_std'], self.signum,
                                            self.param['sigmad'], self.param['sigmaf'], self.param['maxIters'])
 
-        attempts = 4
+        attempts = 0
         ans = "n"
         u_struc = 0
 
-        while ans != "y":  # or attempts > 4:
+        while ans != "y" or attempts > 4:
             self.p, self.sigma_signals, self.R = corr_obj.generate()
 
             corr_truth = np.zeros((self.n_combs, self.tot_dims))
@@ -74,6 +94,7 @@ class MultidimensionalCorrelationAnalysis:
 
             else:
                 break
+            attempts += 1
         self.synthetic_structure = True
 
     def test_data_gen(self, ):
@@ -134,7 +155,7 @@ class MultidimensionalCorrelationAnalysis:
         ax2.set_ylabel('Recall')
         ax2.set_xlabel('SNR')
         plt.show()
-        viz = visualization(self.corr_truth, u_struc, self.x_corrs, self.signum, self.n_sets)
+        viz = visualization(self.corr_truth, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
         viz.visualize("True Structure")
         plt.ioff()
         viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
