@@ -6,6 +6,35 @@ from multipleDatasets.visualization.graph_visu import visualization
 from multipleDatasets.simulateData.CorrelationStructureGen import CorrelationStructureGen
 from multipleDatasets.metrics.metrics import Metrics
 import matplotlib.pyplot as plt
+from multipleDatasets.utils.helper import get_default_params
+
+default_params = {
+    'n': 4,
+    'signum': 4,
+    'M': 300,
+    'num_iter': 1,
+    # 'full_corr': 1,
+    # 'corr_across': [2, 2],
+    # 'corr_means': [0.8, 0.8, 0.8],
+    'percentage_corr': True,
+    'corr_input': [100, 75, 50],
+    # 'corr_std': [0.01, 0.01, 0.01],
+    'RealComp': 'real',
+    'Distr': 'gaussian',
+    'sigmad': 10,
+    'sigmaf': 3,
+    'SNR_vec': [10],  # np.arange(-9, 16, 3),
+    'mixing': 'orth',
+    'color': 'white',
+    'MAcoeff': 1,
+    'ARcoeff': 1,
+    'maxIters': 99,
+    'simulation_data_type': 'synthetic',  # synthetic / real
+    'Pfa_eval': 0.05,
+    'Pfa_evec': 0.05,
+    'bootstrap_count': 1000,
+    'threshold': 0
+}
 
 
 class MultidimensionalCorrelationAnalysis:
@@ -13,7 +42,7 @@ class MultidimensionalCorrelationAnalysis:
     Wrapper class to run multidimentional correlation analysis.
     """
 
-    def __init__(self, n_sets, signum, tot_dims, M, **kwargs):
+    def __init__(self, n_sets=default_params['n'], signum=default_params['signum'], M=default_params['M'], **kwargs):
         """
 
         Args:
@@ -24,20 +53,29 @@ class MultidimensionalCorrelationAnalysis:
             **kwargs ():
         """
         self.M = M
-        self.tot_dims = tot_dims
         self.signum = signum
         self.n_sets = n_sets
         self.param = kwargs
+        if 'tot_dims' not in self.param:
+            self.param['tot_dims'] = self.signum
+        self.tot_dims = self.param['tot_dims']
 
         self.x_corrs = list(combinations(range(n_sets), 2))
         if n_sets < 6:
             self.x_corrs = list(reversed(self.x_corrs))
         self.n_combs = len(self.x_corrs)
-        self.subspace_dim = np.array([tot_dims] * n_sets)
+        self.subspace_dim = np.array([self.param['tot_dims']] * n_sets)
         self.synthetic_structure = False
-        self.simulation_data_type = self.param['simulation_data_type']
+        try:
+            self.simulation_data_type = self.param['simulation_data_type']
+        except KeyError:
+            self.simulation_data_type = 'synthetic'
+
+        self.param = get_default_params(self.param, default_params)
+
 
     def calc_input_corr_vals_from_percent(self, corr_list):
+        # check array len < signum
         full_corr = 0
         corr_accross = []
         corr_list.sort(reverse=True)
@@ -62,6 +100,19 @@ class MultidimensionalCorrelationAnalysis:
             self.param['full_corr'], self.param['corr_across'] = self.calc_input_corr_vals_from_percent(
                 self.param['corr_input'])
 
+        if 'corr_means' not in self.param and 'corr_std' not in self.param:
+
+            self.param['corr_means'] = [0.8] * len(self.param['corr_input'])
+            self.param['corr_std'] = [0.01] * len(self.param['corr_input'])
+
+
+        else:
+            assert 'full_corr' and 'corr_across' in self.param , " correlation structure of synthetic data must be provided"
+            if 'corr_means' not in self.param:
+                self.param['corr_means'] = [0.8]*(self.param['full_corr'] + len(self.param['corr_across']))
+            if 'corr_std' not in self.param:
+                self.param['corr_std'] = [0.01]*(self.param['full_corr'] + len(self.param['corr_across']))
+
         try:
             if any(y < 2 for y in self.param['corr_across']):
                 raise ValueError("Minimum value of corr_across = 2, i.e. atleast 1 pair of datasets ")
@@ -70,6 +121,7 @@ class MultidimensionalCorrelationAnalysis:
             print(ve)
 
         tot_corr = np.append(np.tile(self.n_sets, [1, self.param['full_corr']]), self.param['corr_across'])
+
 
         corr_obj = CorrelationStructureGen(self.n_sets, tot_corr,
                                            self.param['corr_means'], self.param['corr_std'], self.signum,
@@ -178,9 +230,10 @@ class MultidimensionalCorrelationAnalysis:
             self.param['Pfa_evec'] = 0.05
         if 'bootstrap_count' not in self.param:
             self.param['bootstrap_count'] = 1000
-        print("dont")
+        if 'threshold' not in self.param:
+            self.param['threshold'] = 0
         corr_test = Eval_Evec_test(data, self.param['Pfa_eval'], self.param['Pfa_evec'],
-                                   self.param['bootstrap_count'])
+                                   self.param['bootstrap_count'], self.param['threshold'])
         corr_est, d_cap, u_struc = corr_test.find_structure()
 
         viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)

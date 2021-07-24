@@ -1,8 +1,10 @@
 import random
-
+import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-import numpy as np
+plt.rcParams['figure.figsize'] = [12, 8]
+plt.rcParams['figure.dpi'] = 100 # 200 e.g. is really fine, but slower
+
 
 
 class visualization(object):

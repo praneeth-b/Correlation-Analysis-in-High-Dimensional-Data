@@ -42,10 +42,11 @@ class Hypothesis_Test(object):
 
         return d_cap
 
-    def Eigen_vector_test(self, P, aug_dim, P_fa_evec, d_cap, U, U_star_matrix, B):
+    def Eigen_vector_test(self, P, aug_dim, P_fa_evec, d_cap, U, U_star_matrix, B, thresh=0):
         """
         Algorithm 2 of the paper
         Args:
+            thresh ():
             P ():
             aug_dim ():
             P_fa_evec ():
@@ -68,11 +69,12 @@ class Hypothesis_Test(object):
                     dim1 = int(aug_dim[p - 1] + 1)
 
                 dim2 = int(aug_dim[p])
-                T = np.sum(np.square(U[dim1:dim2, i]))
+                T_0 = np.sum(np.square(U[dim1:dim2, i]))
+                T = T_0 - thresh
                 Indicator = 0
                 for b in range(B):
                     T2_star = np.sum(np.square(U_star_matrix[b, dim1:dim2, i]))
-                    T2_null = T2_star - T
+                    T2_null = T2_star - T_0
                     if T <= T2_null:
                         Indicator += 1
 

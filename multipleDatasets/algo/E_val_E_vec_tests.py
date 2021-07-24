@@ -8,7 +8,7 @@ from itertools import combinations
 
 
 class Eval_Evec_test(object):
-    def __init__(self, X_cell, P_fa_eval, P_fa_evec, B):
+    def __init__(self, X_cell, P_fa_eval, P_fa_evec, B, evec_threshold=0):
         """
 
         Args:
@@ -21,6 +21,8 @@ class Eval_Evec_test(object):
         self.P_fa_eval = P_fa_eval
         self.P_fa_evec = P_fa_evec
         self.B = B
+        self.evev_threshold = evec_threshold
+
 
     def augmentData(self, data_cell):
         """
@@ -134,7 +136,8 @@ class Eval_Evec_test(object):
 
         m_min = self.x_cell[0].shape[0]  # assuming all datasets have same num of features.
         d_cap = Hypothesis_Test().Eigen_value_test(P, m_min, self.P_fa_eval, E, E_star_matrix, self.B)
-        U_struc = Hypothesis_Test().Eigen_vector_test(P, aug_dim, self.P_fa_evec, d_cap, U, U_star_matrix, self.B)
+        U_struc = Hypothesis_Test().Eigen_vector_test(P, aug_dim, self.P_fa_evec, d_cap, U, U_star_matrix,
+                                                      self.B, self.evev_threshold)
 
         # compute the correllation map
         x_corrs = list(combinations(range(P), 2))

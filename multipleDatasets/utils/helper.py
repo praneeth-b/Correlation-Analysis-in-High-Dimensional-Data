@@ -72,3 +72,20 @@ def list_find(lst, val):
             idx.append(i)
 
     return idx
+
+
+def get_default_params(dict1, dict2):
+    """
+
+    Args:
+        dict1 (): partial dictionary
+        dict2 (): dict with the default param values
+
+    Returns: dict whose missing keys were substituted with key-values from dict 2
+
+    """
+    for key in dict2:
+        if key not in dict1:
+            dict1[key] = dict2[key]
+
+    return dict1
