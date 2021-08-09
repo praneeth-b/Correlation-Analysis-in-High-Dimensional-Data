@@ -22,7 +22,7 @@ class Eval_Evec_test(object):
         self.P_fa_evec = P_fa_evec
         self.B = B
         self.evev_threshold = evec_threshold
-
+        self.M = X_cell[0].shape[1]
 
     def augmentData(self, data_cell):
         """
@@ -63,8 +63,9 @@ class Eval_Evec_test(object):
         Returns:  augmented data covariance matrix
 
         """
+        M = data_cell[0].shape[1]
         X_aug, _, _ = self.augmentData(data_cell)
-        Rxx_aug = np.matmul(X_aug, X_aug.T)
+        Rxx_aug = np.matmul(X_aug, X_aug.T)/self.M
         return Rxx_aug
 
     def generate_C(self, data_cell):

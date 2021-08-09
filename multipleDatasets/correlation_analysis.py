@@ -100,10 +100,10 @@ class MultidimensionalCorrelationAnalysis:
             self.param['full_corr'], self.param['corr_across'] = self.calc_input_corr_vals_from_percent(
                 self.param['corr_input'])
 
-        if 'corr_means' not in self.param and 'corr_std' not in self.param:
+            if 'corr_means' not in self.param and 'corr_std' not in self.param:
 
-            self.param['corr_means'] = [0.8] * len(self.param['corr_input'])
-            self.param['corr_std'] = [0.01] * len(self.param['corr_input'])
+                self.param['corr_means'] = [0.8] * len(self.param['corr_input'])
+                self.param['corr_std'] = [0.01] * len(self.param['corr_input'])
 
 
         else:
@@ -188,6 +188,7 @@ class MultidimensionalCorrelationAnalysis:
                 corr_test = Eval_Evec_test(X, self.param['Pfa_eval'], self.param['Pfa_evec'],
                                            self.param['bootstrap_count'])
                 corr_est, d_cap, u_struc = corr_test.find_structure()
+                print(d_cap)
                 perf = Metrics(self.corr_truth, corr_est)
                 pr, re = perf.PrecisionRecall()
                 precision += pr

@@ -22,7 +22,7 @@ class Hypothesis_Test(object):
         Lambda = E - 1
         Lambda_star_matrix = E_star_matrix - 1
         smax = m_min - 1  # assuming all datasets have same dimension
-
+        d_cap = 0
         for s in range(-1, smax):
             T = np.sum(np.square(Lambda[s + 1:s + P]))
             Indicators = 0
@@ -34,12 +34,13 @@ class Hypothesis_Test(object):
 
             p_value = Indicators / B
             if p_value >= P_fa_eval:
-                d_cap = s+1,
+                d_cap = s + 1,
                 break
 
-            if s == smax-1:
+            if s == smax - 1:
                 d_cap = smax
-
+        if type(d_cap) is tuple:
+            d_cap = int(d_cap[0])
         return d_cap
 
     def Eigen_vector_test(self, P, aug_dim, P_fa_evec, d_cap, U, U_star_matrix, B, thresh=0):
