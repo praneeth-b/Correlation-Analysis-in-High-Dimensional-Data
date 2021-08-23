@@ -17,7 +17,7 @@ default_params = {
     # 'corr_across': [2, 2],
     # 'corr_means': [0.8, 0.8, 0.8],
     'percentage_corr': True,
-    'corr_input': [100, 75, 50],
+    #'corr_input': [100, 75, 50],
     # 'corr_std': [0.01, 0.01, 0.01],
     'RealComp': 'real',
     'Distr': 'gaussian',
@@ -215,8 +215,9 @@ class MultidimensionalCorrelationAnalysis:
         viz_op.visualize("Estimated_structure")
 
         print("done")
+        return corr_est, d_cap
 
-    def run_realData(self, data):
+    def run_realData(self, data, disp_struc=True):
         """
         Args:
             data (): must be in the form of a list of ndarrays. Dimensions must be consistent with n_sets and signum
@@ -237,13 +238,14 @@ class MultidimensionalCorrelationAnalysis:
                                    self.param['bootstrap_count'], self.param['threshold'])
         corr_est, d_cap, u_struc = corr_test.find_structure()
 
-        viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
-        viz_op.visualize("Estimated_structure")
-        return corr_est
+        if disp_struc:
+            viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
+            viz_op.visualize("Estimated_structure")
+        return corr_est, u_struc, d_cap
 
-    def run(self, *argv):
+    def run(self, *argv, **kwargs):
         if self.simulation_data_type == 'real':
-            self.run_realData(argv[0])
+            return self.run_realData(argv[0], **kwargs)
 
         if self.simulation_data_type == 'synthetic':
-            self.run_syntheticData()
+            return  self.run_syntheticData()

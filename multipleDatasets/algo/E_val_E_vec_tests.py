@@ -132,8 +132,8 @@ class Eval_Evec_test(object):
             E_star_matrix.append(E_star)
             U_star_matrix.append(U_star)
 
-        E_star_matrix = np.array(E_star_matrix)
-        U_star_matrix = np.array(U_star_matrix)
+        E_star_matrix = np.array(E_star_matrix).T
+        U_star_matrix = np.array(U_star_matrix).T
 
         m_min = self.x_cell[0].shape[0]  # assuming all datasets have same num of features.
         d_cap = Hypothesis_Test().Eigen_value_test(P, m_min, self.P_fa_eval, E, E_star_matrix, self.B)

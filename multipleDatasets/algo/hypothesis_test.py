@@ -9,8 +9,8 @@ class Hypothesis_Test(object):
         """
         Algorithm 1 of the paper.
         Args:
-            P ():
-            m_min ():
+            P (): num of datasets
+            m_min (): typically number of signals in each dataset
             P_fa_eval ():
             E ():
             E_star_matrix ():
@@ -21,20 +21,20 @@ class Hypothesis_Test(object):
         """
         Lambda = E - 1
         Lambda_star_matrix = E_star_matrix - 1
-        smax = m_min - 1  # assuming all datasets have same dimension
+        smax = m_min-1  # assuming all datasets have same dimension
         d_cap = 0
-        for s in range(-1, smax):
-            T = np.sum(np.square(Lambda[s + 1:s + P]))
+        for s in range(smax):
+            T = np.sum(np.square(Lambda[s:s + P]))
             Indicators = 0
             for b in range(B):
-                T2_star = np.sum(Lambda_star_matrix[b, s + 1:s + P])
+                T2_star = np.sum(np.square(Lambda_star_matrix[s:s + P, b]))
                 T2_null = T2_star - T
                 if T <= T2_null:
                     Indicators += 1
 
             p_value = Indicators / B
             if p_value >= P_fa_eval:
-                d_cap = s + 1,
+                d_cap = s
                 break
 
             if s == smax - 1:
@@ -67,14 +67,14 @@ class Hypothesis_Test(object):
                 if p == 0:
                     dim1 = 0
                 else:
-                    dim1 = int(aug_dim[p - 1] + 1)
+                    dim1 = int(aug_dim[p - 1] )
 
                 dim2 = int(aug_dim[p])
                 T_0 = np.sum(np.square(U[dim1:dim2, i]))
                 T = T_0 - thresh
                 Indicator = 0
                 for b in range(B):
-                    T2_star = np.sum(np.square(U_star_matrix[b, dim1:dim2, i]))
+                    T2_star = np.sum(np.square(U_star_matrix[dim1:dim2, i, b]))
                     T2_null = T2_star - T_0
                     if T <= T2_null:
                         Indicator += 1
