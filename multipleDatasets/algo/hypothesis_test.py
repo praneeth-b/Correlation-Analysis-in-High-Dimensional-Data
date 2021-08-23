@@ -74,7 +74,7 @@ class Hypothesis_Test(object):
                 T = T_0 - thresh
                 Indicator = 0
                 for b in range(B):
-                    T2_star = np.sum(np.square(U_star_matrix[dim1:dim2, i, b]))
+                    T2_star = np.sum(np.square(U_star_matrix[b][dim1:dim2, i]))
                     T2_null = T2_star - T_0
                     if T <= T2_null:
                         Indicator += 1
