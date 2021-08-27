@@ -51,6 +51,8 @@ class visualization(object):
                 labels = nx.get_edge_attributes(g_list[i], 'weight')
                 nx.draw_networkx_edge_labels(g_list[i], pos, edge_labels=labels, font_size=7, ax=self.axes[i],
                                              label_pos=random.uniform(0.2, 0.8))
+            if np.all((self.graph_matrix[i]==0)):
+                self.axes[i].set_visible(False)
         if self.signals % 2 > 0:
             self.axes[-1].set_visible(False)
         plt.show()
