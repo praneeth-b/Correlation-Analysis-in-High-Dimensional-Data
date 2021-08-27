@@ -11,16 +11,16 @@ def bool_to_int(x):
     return y
 
 
-n_sets = 4  # number of datasets
-signum = 5  # signals in each dataset
-tot_dims = 5
-M = 300  # data samples
+n_sets = 5  # number of datasets
+signum = 4  # signals in each dataset
+tot_dims = 3
+M = 500  # data samples
 estimator = MultidimensionalCorrelationAnalysis( n_sets, signum,
                                                  M,
                                                  tot_dims=signum,
                                                  num_iter=1,
-                                                 full_corr=2,
-                                                 corr_across=[2],
+                                                 full_corr=1,
+                                                 corr_across=[3,2,],
                                                  #corr_means=[0.8],
                                                 percentage_corr=False,
                                                 #corr_input=[100, 75],

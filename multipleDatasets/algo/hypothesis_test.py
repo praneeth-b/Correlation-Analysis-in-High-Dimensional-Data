@@ -71,10 +71,17 @@ class Hypothesis_Test(object):
 
                 dim2 = int(aug_dim[p])
                 T_0 = np.sum(np.square(U[dim1:dim2, i]))
+                if thresh > 0:
+                    T_0 = np.linalg.norm(U[dim1:dim2, i])
+
                 T = T_0 - thresh
+
+
                 Indicator = 0
                 for b in range(B):
                     T2_star = np.sum(np.square(U_star_matrix[b][dim1:dim2, i]))
+                    if thresh > 0 :
+                        T2_star = np.linalg.norm(U_star_matrix[b][dim1:dim2, i])
                     T2_null = T2_star - T_0
                     if T <= T2_null:
                         Indicator += 1

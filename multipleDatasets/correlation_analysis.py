@@ -103,7 +103,7 @@ class MultidimensionalCorrelationAnalysis:
             if 'corr_means' not in self.param and 'corr_std' not in self.param:
 
                 self.param['corr_means'] = [0.8] * len(self.param['corr_input'])
-                self.param['corr_std'] = [0.01] * len(self.param['corr_input'])
+                self.param['corr_std'] = [0.1] * len(self.param['corr_input'])
 
 
         else:
@@ -111,7 +111,7 @@ class MultidimensionalCorrelationAnalysis:
             if 'corr_means' not in self.param:
                 self.param['corr_means'] = [0.8]*(self.param['full_corr'] + len(self.param['corr_across']))
             if 'corr_std' not in self.param:
-                self.param['corr_std'] = [0.01]*(self.param['full_corr'] + len(self.param['corr_across']))
+                self.param['corr_std'] = [0.1]*(self.param['full_corr'] + len(self.param['corr_across']))
 
         try:
             if any(y < 2 for y in self.param['corr_across']):
@@ -234,6 +234,8 @@ class MultidimensionalCorrelationAnalysis:
             self.param['bootstrap_count'] = 1000
         if 'threshold' not in self.param:
             self.param['threshold'] = 0
+
+        data = np.real(data)
         corr_test = Eval_Evec_test(data, self.param['Pfa_eval'], self.param['Pfa_evec'],
                                    self.param['bootstrap_count'], self.param['threshold'])
         corr_est, d_cap, u_struc = corr_test.find_structure()

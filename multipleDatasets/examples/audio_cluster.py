@@ -9,18 +9,38 @@ from matplotlib.pyplot import specgram
 
 sys.path.insert(0, "/home/praneeth/projects/sst/git/Correlation-Analysis-in-High-Dimensional-Data/")
 from multipleDatasets.correlation_analysis import MultidimensionalCorrelationAnalysis
+from multipleDatasets.utils.helper import arr_sort
+
 
 def most_frequent(List):
     return max(set(List), key=List.count)
 
+
 def bool_to_int(x):
-    y=0
-    for i,j in enumerate(x):
-        y += j<<i
+    y = 0
+    for i, j in enumerate(x):
+        y += j << i
     return y
 
+
+def nd_bool2int(ndarr):
+    if ndarr.shape[0] == 0:
+        return 0
+    else:
+        nums = []
+        for a in ndarr:
+            nums.append(bool_to_int(a.astype(np.int32)))
+        return nums
+
+
+## Fetch matlab computed stft
+# data_spectrum = scipy.io.loadmat('dataset/Y_zm.mat')
+# Y_f_zm = data_spectrum['Y_f_zm']
+# M = Y_f_zm.shape[1]
+
+
 # fetch audio data from file
-mat = scipy.io.loadmat('dataset/micsignals_scen_1.mat')
+mat = scipy.io.loadmat('dataset/micsignals_scen_1_two_sources.mat')
 mics = mat['mics']
 fs_target = mat['fs_target'].squeeze()
 print(mics.shape)
@@ -28,18 +48,47 @@ P = mics.shape[2]
 n = mics.shape[1]
 M = mics.shape[0]
 Y = mics.reshape(M, P * n).T
+
+sensors = np.array([8, 11, 5, 6, 15, 3, 9, 2, 19, 1])
 # Detector parameters
-thresh = 1 / np.sqrt(P)
+
+
 B = 1000
 Pfa_eval = 0.01
 Pfa_evec = 0.01
 n_sets = 10
+thresh = 1 / np.sqrt(n_sets)
 signum = 3
-tot_dims = 10
 
-data_spectrum = scipy.io.loadmat('dataset/Y_zm.mat')
-Y_f_zm = data_spectrum['Y_f_zm']
-M = Y_f_zm.shape[1]
+# zero mean the data
+
+m_y = np.mean(Y, axis=1)
+Y = Y - m_y.reshape(P * n, 1)
+
+# STFT parameters:
+no_bins = 32  # freq bins
+frame_size = 64  # window size
+fft_len = 2 * (no_bins - 1)
+
+window = np.hamming(frame_size)
+stft_size = frame_size
+stft_shift = fft_len
+
+Y_f = []
+for sig in Y:
+    len = sig.shape[0]
+    # S_y = scipy.signal.stft(sig, nperseg=64,fs=fs_target, noverlap=0)
+    # S_y = specgram(sig, NFFT=62, Fs=fs_target, noverlap=0)
+    S_y = stft(sig[int(0.2 * len): int(0.6 * len)], fft_length=512, frame_shift=10000, window_length=512,
+               window='hamming')
+    m_f = np.mean(S_y, axis=1)
+
+    # zero mean the stft data
+    S_y = S_y - m_f.reshape(m_f.shape[0], 1)
+    Y_f.append(S_y)
+
+Y_f_zm = np.array(Y_f)
+no_bins = Y_f_zm.shape[2]
 
 estimator = MultidimensionalCorrelationAnalysis(n_sets, signum, M,
                                                 simulation_data_type='real',  # synthetic / real
@@ -47,30 +96,6 @@ estimator = MultidimensionalCorrelationAnalysis(n_sets, signum, M,
                                                 Pfa_evec=Pfa_evec,
                                                 threshold=thresh,  # 1/np.sqrt(10),
                                                 bootstrap_count=B)
-
-# # zero mean the data
-#
-# m_y = np.mean(Y,axis=1)
-# Y = Y - m_y.reshape(P*n, 1)
-# STFT parameters:
-
-# no_bins = 32  # freq bins
-# frame_size = 64   # window size
-# fft_len = 2*(no_bins-1)
-# window = np.hamming(frame_size)
-# stft_size = frame_size
-# stft_shift = fft_len
-# Y_f = np.zeros((30,467,32))
-# for sig in Y:
-#     #S_y = scipy.signal.stft(sig, nperseg=64,fs=fs_target, noverlap=0)
-#     #S_y = stft(sig, fft_length=512, frame_shift=6000, window_length=512, window='hamming')
-#
-#     #S_y = specgram(sig, NFFT=62, Fs=fs_target, noverlap=0)
-#     break
-# #
-
-
-no_bins = 32
 
 cluster_bin = np.zeros((10, 10, no_bins))
 d_vec = np.zeros(no_bins)
@@ -82,26 +107,36 @@ with tqdm(total=no_bins) as pbar:
             Y_cell.append(Y_f_zm[p:p + 3, :, b])
 
         struc_bin, z_bin, d_hat_i = estimator.run(Y_cell, disp_struc=False)
-        #print("d_hat= ",d_hat_i)
+        nums = nd_bool2int(z_bin)
+        print("d_hat= ", d_hat_i)
+        print(z_bin, nums)
         d_vec[b] = d_hat_i
         cluster_bin[:d_hat_i, :, b] = z_bin
         count += 1
+
         pbar.update(1)
 
-
 d_hat = int(np.round(np.mean(d_vec)))
+print("dhat = ", d_hat)
 vec_count = np.zeros(1025)
 # computer majority vote:
 for b in range(no_bins):
     for i in range(d_hat):
-        arr= cluster_bin[i, :, b]
+        arr = cluster_bin[i, :, b]
         idx = bool_to_int(arr.astype(np.int32))
         vec_count[idx] += 1
 
-
 # pick the top d_hat after arg sorting in descending:
-ranked = np.argsort(vec_count)
-largest_ids = ranked[::-1][:5]
-print(largest_ids)
+vec_count = vec_count
+# ranked = np.argsort(vec_count)
+sorted_arr, idx = arr_sort(vec_count, 'descending')
+largest_ids = idx[0:d_hat + 1]
+# largest_ids = ranked[::-1][:d_hat]
+print("largest ids=", largest_ids)
+for ele in largest_ids:
+    res = [int(x) for x in str(np.binary_repr(ele, width=10))]
+    idx = np.nonzero(res)
+    clusters = sensors[idx]
+    print("bin form", np.binary_repr(ele, width=10), clusters)
 
 print("experiment complete")
