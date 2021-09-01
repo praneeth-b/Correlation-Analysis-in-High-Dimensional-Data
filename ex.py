@@ -11,7 +11,7 @@ def bool_to_int(x):
     return y
 
 
-n_sets = 5  # number of datasets
+n_sets = 6  # number of datasets
 signum = 4  # signals in each dataset
 tot_dims = 3
 M = 500  # data samples

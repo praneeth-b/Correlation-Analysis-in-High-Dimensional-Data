@@ -65,26 +65,18 @@ signum = 3
 m_y = np.mean(Y, axis=1)
 Y = Y - m_y.reshape(P * n, 1)
 
-# STFT parameters:
-no_bins = 32  # freq bins
-frame_size = 64  # window size
-fft_len = 2 * (no_bins - 1)
 
-window = np.hamming(frame_size)
-stft_size = frame_size
-stft_shift = fft_len
-
+n1 , n2 = 300, 350  # freq range to compute on later
 Y_f = []
 for sig in Y:
     len = sig.shape[0]
-    # S_y = scipy.signal.stft(sig, nperseg=64,fs=fs_target, noverlap=0)
-    # S_y = specgram(sig, NFFT=62, Fs=fs_target, noverlap=0)
-    S_y = stft(sig[int(0.2 * len): int(0.6 * len)], fft_length=512, frame_shift=10000, window_length=512,
-               window='hamming')
+    f, t, S_y = scipy.signal.stft(sig, nperseg=1024,window='hamming', fs=fs_target, return_onesided=True, noverlap=0)
+    S_y = np.real(S_y[n1:n2,:])
     m_f = np.mean(S_y, axis=1)
-
     # zero mean the stft data
     S_y = S_y - m_f.reshape(m_f.shape[0], 1)
+    S_y = S_y.T
+
     Y_f.append(S_y)
 
 Y_f_zm = np.array(Y_f)
@@ -105,7 +97,6 @@ with tqdm(total=no_bins) as pbar:
         Y_cell = []
         for p in range(0, 30, 3):
             Y_cell.append(Y_f_zm[p:p + 3, :, b])
-
         struc_bin, z_bin, d_hat_i = estimator.run(Y_cell, disp_struc=False)
         nums = nd_bool2int(z_bin)
         print("d_hat= ", d_hat_i)
@@ -130,6 +121,7 @@ for b in range(no_bins):
 vec_count = vec_count
 # ranked = np.argsort(vec_count)
 sorted_arr, idx = arr_sort(vec_count, 'descending')
+print("the hash table",vec_count)
 largest_ids = idx[0:d_hat + 1]
 # largest_ids = ranked[::-1][:d_hat]
 print("largest ids=", largest_ids)

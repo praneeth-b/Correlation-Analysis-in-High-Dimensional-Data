@@ -88,7 +88,7 @@ class CorrelationStructureGen:
                 self.R[j * self.signum: (j + 1) * self.signum, i * self.signum: (i + 1) * self.signum] = Rxy[int(c[0])]
         Ev, Uv = np.linalg.eig(self.R)
         # assert min(Ev) > 0, "negative eigen value !!! "
-        print("R ready")
+
         return self.R
 
     def generate(self):
