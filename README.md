@@ -18,6 +18,15 @@ Cite the work as follows:
 
 ```
 
+## Installation
+
+To install the toolbox and the required packages, (it is recommended to create a virtual environment) simply run:
+```
+git clone 
+python setup.py install
+
+```
+
 
 
 
