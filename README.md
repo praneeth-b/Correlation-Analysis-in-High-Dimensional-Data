@@ -22,7 +22,10 @@ Cite the work as follows:
 
 To install the toolbox and the required packages, (it is recommended to create a virtual environment) simply run:
 ```
-git clone 
+git clone https://github.com/praneeth-b/Correlation-Analysis-in-High-Dimensional-Data.git
+
+cd Correlation-Analysis-in-High-Dimensional-Data
+
 python setup.py install
 
 ```
