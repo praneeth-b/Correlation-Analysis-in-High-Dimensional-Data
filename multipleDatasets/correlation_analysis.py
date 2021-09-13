@@ -79,7 +79,7 @@ class MultidimensionalCorrelationAnalysis:
                 full_corr += 1
 
             else:
-                ca = int((ele / 100) * self.signum)
+                ca = int((ele / 100) * self.n_sets)
                 corr_accross.append(ca)
         return full_corr, corr_accross
 
@@ -193,23 +193,24 @@ class MultidimensionalCorrelationAnalysis:
             rec_vec.append(recall / self.param['num_iter'])
 
         plt.ion()
-        fig, (ax1, ax2) = plt.subplots(2, 1)
-        fig.suptitle('Precion recall plots for various SNR')
-        ax1.plot(self.param['SNR_vec'], prec_vec, 'o-')
-        ax1.set_ylabel('Precision')
-        ax1.set_xlabel('SNR')
+        if len(self.param['SNR_vec']) > 1:
+            fig, (ax1, ax2) = plt.subplots(2, 1)
+            fig.suptitle('Precion recall plots for various SNR')
+            ax1.plot(self.param['SNR_vec'], prec_vec, 'o-')
+            ax1.set_ylabel('Precision')
+            ax1.set_xlabel('SNR')
 
-        ax2.plot(self.param['SNR_vec'], rec_vec, 'o-')
-        ax2.set_ylabel('Recall')
-        ax2.set_xlabel('SNR')
-        plt.show()
+            ax2.plot(self.param['SNR_vec'], rec_vec, 'o-')
+            ax2.set_ylabel('Recall')
+            ax2.set_xlabel('SNR')
+            plt.show()
         viz = visualization(self.corr_truth, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
         viz.visualize("True Structure")
         plt.ioff()
         viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
         viz_op.visualize("Estimated_structure")
 
-        print("done")
+
         return corr_est, d_cap
 
     def run_realData(self, data, disp_struc=True):
