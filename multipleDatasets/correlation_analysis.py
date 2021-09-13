@@ -183,7 +183,6 @@ class MultidimensionalCorrelationAnalysis:
                 corr_test = Eval_Evec_test(X, self.param['Pfa_eval'], self.param['Pfa_evec'],
                                            self.param['bootstrap_count'])
                 corr_est, d_cap, u_struc = corr_test.find_structure()
-                print(d_cap)
                 perf = Metrics(self.corr_truth, corr_est)
                 pr, re = perf.PrecisionRecall()
                 precision += pr
