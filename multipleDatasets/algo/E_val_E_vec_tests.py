@@ -8,14 +8,25 @@ from itertools import combinations
 
 
 class Eval_Evec_test(object):
+    """
+    Description: This class contains the implementation of algorithms 1 and 2 of the paper:  T. Hasija, C. Lameiro, T. Marrinan
+    and P. J. Schreier,"Determining the Dimension and Structure of the Subspace Correlated Across Multiple Data Sets."
+
+    Given multiple datasets, each with multiple features, the technique estimates the number of correlated features
+    accross the datasets and also their correlation structure. The technique uses bootstrapping based detection for
+    estimating the number and structure of the correlated components.
+
+
+    """
     def __init__(self, X_cell, P_fa_eval, P_fa_evec, B, evec_threshold=0):
         """
 
         Args:
-            X_cell (nparray): list of dataset ndarrays
-            P_fa_eval ():
-            P_fa_evec ():
-            B ():
+            X_cell (list of ndarrays): list containing the data samples of all the datasets. The i'th element of
+                                    the list conststs of the data samples of the i'th dataset in the form of an ndarray.
+            P_fa_eval (float): False alarm probability used for the eigen value test.
+            P_fa_evec (float): False alarm probabiity used for the eigen vector test.
+            B (int): Number of bootstrap sampling to be performed.
         """
         self.x_cell = X_cell
         self.P_fa_eval = P_fa_eval
@@ -25,10 +36,7 @@ class Eval_Evec_test(object):
         self.M = X_cell[0].shape[1]
 
     def augmentData(self, data_cell):
-        """
-        Returns: augmented data and covariance matrices of individual data sets and dimension of each dataset
 
-        """
         P = len(data_cell)  # number of datasets
         M = data_cell[0].shape[1]  # number of samples
         x_aug = []
@@ -36,15 +44,13 @@ class Eval_Evec_test(object):
         Rxx_mH = [0] * P
         for i in range(P):
             x_aug.extend(data_cell[i])
-            Rxx_mH[i] = sqrtm(inv(np.matmul(data_cell[i], np.transpose(data_cell[i])) / M))
+            data_cell_h = np.transpose(data_cell[i].conjugate())
+            Rxx_mH[i] = sqrtm(inv(np.matmul(data_cell[i], data_cell_h) / M))  # verify
             m.append(data_cell[i].shape[0])
         return np.array(x_aug), Rxx_mH, m
 
     def generateInv_RD_cap(self, data_cell):
-        """
-          Returns: Rd square root(inverse of RD matrix)
 
-        """
         P = len(data_cell)  # number of datasets
         M = data_cell[0].shape[1]  # number of samples
 
@@ -65,7 +71,8 @@ class Eval_Evec_test(object):
         """
         M = data_cell[0].shape[1]
         X_aug, _, _ = self.augmentData(data_cell)
-        Rxx_aug = np.matmul(X_aug, X_aug.T)/self.M
+        X_aug_h = np.transpose(X_aug.conjugate())
+        Rxx_aug = np.matmul(X_aug, X_aug_h)/self.M
         return Rxx_aug
 
     def generate_C(self, data_cell):
@@ -119,6 +126,13 @@ class Eval_Evec_test(object):
         return bs_cell
 
     def find_structure(self):
+        """
+        Function to estimate the number of correlated components and their structure.
+        Returns: Number of correlated components 'd_cap' and the estimated correlation structure as a matrix. The correlation
+        structre matrix 'corr_struc' is composed of the signals along the row axis and all possible pairs of datasets
+        along the column axis.
+
+        """
         Cxx_aug, aug_dim = self.generate_C(self.x_cell)
         E, U = self.calc_Eval_Evec(Cxx_aug)
         P = len(self.x_cell)  # number of datasets

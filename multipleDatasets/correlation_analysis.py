@@ -13,17 +13,12 @@ default_params = {
     'signum': 4,
     'M': 300,
     'num_iter': 1,
-    # 'full_corr': 1,
-    # 'corr_across': [2, 2],
-    # 'corr_means': [0.8, 0.8, 0.8],
     'percentage_corr': True,
-    #'corr_input': [100, 75, 50],
-    # 'corr_std': [0.01, 0.01, 0.01],
     'RealComp': 'real',
     'Distr': 'gaussian',
     'sigmad': 10,
     'sigmaf': 3,
-    'SNR_vec': [10],  # np.arange(-9, 16, 3),
+    'SNR_vec': [15],
     'mixing': 'orth',
     'color': 'white',
     'MAcoeff': 1,
@@ -50,7 +45,7 @@ class MultidimensionalCorrelationAnalysis:
             signum (int): number of signals in each dataset
             tot_dims (int): signal dimensions
             M (int): number of data samples
-            **kwargs ():
+            **kwargs (): Other key word arguements to be passed to further objects.
         """
         self.M = M
         self.signum = signum
@@ -183,7 +178,7 @@ class MultidimensionalCorrelationAnalysis:
                                                     self.n_sets, self.p,
                                                     self.sigma_signals, self.M, self.param['MAcoeff'],
                                                     self.param['ARcoeff'], self.param['Distr'], self.R)
-                X, R, A, S = datagen.generate()
+                X, R = datagen.generate()
 
                 corr_test = Eval_Evec_test(X, self.param['Pfa_eval'], self.param['Pfa_evec'],
                                            self.param['bootstrap_count'])
@@ -235,7 +230,7 @@ class MultidimensionalCorrelationAnalysis:
         if 'threshold' not in self.param:
             self.param['threshold'] = 0
 
-        data = np.real(data)
+        #data = np.real(data)
         corr_test = Eval_Evec_test(data, self.param['Pfa_eval'], self.param['Pfa_evec'],
                                    self.param['bootstrap_count'], self.param['threshold'])
         corr_est, d_cap, u_struc = corr_test.find_structure()

@@ -8,14 +8,23 @@ plt.rcParams['figure.dpi'] = 100 # 200 e.g. is really fine, but slower
 
 
 class visualization(object):
+    """
+     Description: This class implements the visualization of the correlation structure in the form of graphs. An edge
+     between 2 nodes indicates that there is a correlation between the 2 signals belonging to different datasets.
+     Use the visualize() function to display the graphs.
+
+    """
+
     def __init__(self, corr_estimate_pairwise, corr_estimate=0, x_corr=0, num_signals=0, num_dataset=0, gtype=1,
                  label_edge=True):
         """
 
         Args:
-            corr_estimate (): matrix of correlation between pairs of datasets
-            x_corr ():
-            num_signals ():
+            corr_estimate (ndarray): matrix of correlation between pairs of datasets.
+            x_corr (list): list of the pairs of datasets used in previous computations
+            num_signals (int): number of signals in the datasets
+            num_dataset (int): number of datasets
+            label_edge (bool): setting to 'True' adds correlation coefficient as the weights of the edges
         """
         self.graph_matrix = corr_estimate_pairwise
         self.typ2graph_matrix = corr_estimate
@@ -106,25 +115,3 @@ class visualization(object):
         if self.type == 2:
             raise Exception("NOt Implemented")
 
-# g = nx.Graph()
-# g.add_node(2)
-# g.add_node(3)
-# g.add_node(4)
-# g.add_node(5)
-#
-# g.add_edge(2, 3)
-# g.add_edge(2, 4)
-# g.add_edge(4, 5)
-# print(nx.info(g))
-# h = nx.Graph()
-# h.add_node(1)
-# h.add_node(2)
-# h.add_node(3)
-# h.add_edge(2, 3)
-#
-# fig, axes = plt.subplots(2)
-# ax = axes.flatten()
-# nx.draw_networkx(g, with_labels=True, font_weight='bold', ax=ax[0])
-#
-# nx.draw_networkx(h, with_labels=True, font_weight='bold', ax=ax[1])
-# plt.show()

@@ -11,30 +11,34 @@ from multipleDatasets.utils.helper import ismember, comb, list_find
 
 class CorrelationStructureGen:
     """
-    init implementation of the correlation structure generation function
-    Note: all arrays/matrices to be of the form nparray
+    Description:
+    This function generates a correlation structure and augmented covariance matrix for multiple data sets. Correlation
+    coefficients for each signal are randomly selected from a normal distribution with a user prescribed mean and
+    standard deviation. This function enforces the 'transitive correlation condition.'
+
+    Use the generate() function to create the desired correlation structure.
+
     """
 
     def __init__(self, n_sets, tot_corr, corr_means, corr_std, signum, sigmad, sigmaf, maxIters=99):
         """
 
-        :param n_sets:
-        :type n_sets:
-        :param tot_corr:
-        :type tot_corr:
-        :param corr_means:
-        :type corr_means:
-        :param corr_std:
-        :type corr_std:
-        :param signum:
-        :type signum:
-        :param sigmad:
-        :type sigmad:
-        :param sigmaf:
-        :type sigmaf:
-        :param maxIters:
-        :type maxIters:
+        Args:
+            n_sets (int): Number of datasets
+            tot_corr (int): Number of signals/features of the datasets correlated across all datasets
+            corr_means (array):  The ith element is the mean of the correlation coefficients associated
+                                 with the ith correlated signal.
+            corr_std (array): The ith element of the standard deviation of the correlation coefficients associated with
+                              the ith correlated signal.
+            signum (int): Total number of signals in the dataset
+            sigmad (float): Variance of the correlated components
+            sigmaf (float): Variance of the independent components
+            maxIters (int): Number of random draws of correlation coefficients allowed to find a positive definite
+                            correlation matrix.
         """
+
+
+
         self.corrnum = tot_corr.shape[0]
         self.n_sets = n_sets
         self.tot_corr = tot_corr
@@ -92,6 +96,22 @@ class CorrelationStructureGen:
         return self.R
 
     def generate(self):
+        """
+        Generates the correlation structure of the multi dataset.
+        Returns:
+            p (ndarray): Matrix of size 'n_sets choose two' x signum. Rows have the same order as x_corrs.
+            The ith element of the jth row is the correlation coefficient between the ith signals in the data sets
+            indicated by the jth row of self.x_corrs.
+
+            sigma_signals (ndarray): Matrix of size (n_sets x signum) x (n_sets x signum). Augmented block
+            correlation matrix of all the data sets. Each block is of size signum x signum and the i-jth block is the
+            correlation matrix between data set i and data set j.
+
+            R (ndarray): Matrix of size (n_sets x signum) x (n_sets x signum). Augmented block correlation matrix of
+            all the data sets. Each block is of size signum x signum and the i-jth block is the correlation matrix
+            between data set i and data set j.
+
+        """
 
         minEig = -1
         attempts = 0
@@ -136,50 +156,4 @@ class CorrelationStructureGen:
 
         return p, sigma_signals, R
 
-    # def egenerateBlockCorrelationMatrix(self):
-    #      """
-    #     Compute the pairwise correlation and assemble the correlation matrices into augmented block correlation matrix
-    #     Returns:
-    #
-    #     """
-    #     Rxy = [0] * comb(self.n_sets, 2)
-    #     for i in range(len(self.x_corrs)):
-    #         Rxy[i] = np.sqrt(np.diag(self.sigma_signals[i, :]) * np.diag(self.sigma_signals[i,: ])) * np.diag(
-    #             self.p[i, :])
-    #
-    #     # Assemble correlation matrices into augmented block correlation matrix
-    #     for i in range(self.n_sets):
-    #         t= np.zeros(len(self.x_corrs))
-    #         idx = list_find(self.x_corrs, i)
-    #         t[idx] = 1
-    #         temp = self.sigma_signals[idx, :] == self.sigmad
-    #         temp = temp.max(0)
-    #         self.R[i * self.signum: (i + 1) * self.signum, i * self.signum: (i + 1) * self.signum] = np.diag(
-    #             temp * self.sigmad + np.logical_not(temp) * self.sigmaf)  # recheck the indices
-    #
-    #         for j in range(i+1 , self.n_sets):  # check this again
-    #             a = np.zeros(len(self.x_corrs))
-    #             b = np.zeros(len(self.x_corrs))
-    #             idxa = list_find(self.x_corrs, i)
-    #             idxb = list_find(self.x_corrs, j)
-    #             a[idxa] = 1
-    #             b[idxb] = 1
-    #             # a = np.sum(self.x_corrs == i, 1)
-    #             # b = np.sum(self.x_corrs == j, 2)
-    #             c = np.nonzero(np.multiply(a, b))
-    #             self.R[i * self.signum: (i + 1) * self.signum, j * self.signum: (j + 1) * self.signum] = Rxy[int(c[0])]
-    #             self.R[j * self.signum: (j + 1) * self.signum, i * self.signum: (i + 1) * self.signum] = Rxy[int(c[0])]
-    #     Ev, Uv = np.linalg.eig(self.R)
-    #     assert min(Ev) > 0, "negative eigen value !!! "
-    #     print("R ready")
-    #     return  self.R
 
-    # def ismember(self, A, B):
-    #     ret_list = []
-    #     for rows in A:
-    #         ret_list.append([np.sum(a in B) for a in rows])
-    #     return np.array(ret_list)
-    #
-    # def comb(self, n, r):
-    #     f = math.factorial
-    #     return int(f(n) / (f(r) * f(n - r)))

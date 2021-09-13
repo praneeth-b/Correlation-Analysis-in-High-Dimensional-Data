@@ -10,28 +10,37 @@ from multipleDatasets.utils.helper import ismember, comb, list_find
 
 class MultisetDataGen_CorrMeans(object):
     """
-    Generate Multiple datasets with prescribed correlation structure
+    Description:
+    This class implements the generation of multiple data sets with a prescribed correlation structure. It enforces
+    the transitive correlation condition.
+
     """
 
     def __init__(self, subspace_dims, signum, x_corrs, mixing, sigmad, sigmaf, sigmaN, color, n_sets, p, sigma_signals,
-                 M, MAcoeff,
-                 ARcoeff, Distr, R=0):
+                 M, MAcoeff, ARcoeff, Distr, R=0):
         """
 
         Args:
-            subspace_dims ():
-            signum ():
-            x_corrs ():
-            mixing ():
-            sigmaN ():
-            color ():
-            n_sets ():
-            p ():
-            sigma_signals ():
-            M ():
-            MAcoeff ():
-            ARcoeff ():
-            Distr ():
+            subspace_dims (array): The ith element is the subspace dimension of the ith data set.
+            signum (int): Number of signals in a dataset.
+            x_corrs (array): List of tuples containing pair-wise combinations of the datasets.
+            mixing (str): 'orth' or 'randn'. Describes the type of mixing matrix.
+            sigmaN (float): The variance of the noise components.
+            color (str): 'white' for additive white noise and 'color' for colored noise.
+            n_sets (int): Number of datasets
+
+            p (ndarray):  Matrix of size 'n_sets choose two' x signum. Rows have the same order as x_corrs.
+            The ith element of the jth row is the correlation coefficient between the ith signals in the data sets
+            indicated by the jth row of self.x_corrs.
+
+            sigma_signals (): Matrix of size (n_sets x signum) x (n_sets x signum). Augmented block
+            correlation matrix of all the data sets. Each block is of size signum x signum and the i-jth block is the
+            correlation matrix between data set i and data set j.
+
+            M (int): Number of samples per dataset
+            MAcoeff (array): array of size 'degree of MA dependency' x 1. Moving average coefficients for colored noise.
+            ARcoeff (array): array of size 'degree of AR dependency' x 1. Auto-regressive coefficients for colored noise.
+            Distr (str): 'gaussian' or 'laplacian'. Specifies the distribution of the signal components.
         """
 
         self.subspace_dims = subspace_dims
@@ -166,14 +175,20 @@ class MultisetDataGen_CorrMeans(object):
         for i in range(self.n_sets):
             self.X[i] = self.A[i] @ self.S[i] + self.N[i]
 
-        return self.X
+        #return self.X
 
     def generate(self):
         """
+        This function retuns the generated data sets with a prescribed correlation structure.
+        Returns: X (list of ndarrays): List of size n_sets x 1. The ith cell contains a matrix of size
+        'ith element of subspace_dims'  by M.  It is the matrix of observations of the ith data set plus noise.
 
-        Returns: X, R , A, S
+        R (ndarray): Matrix of size (n_sets x signum) x (n_sets x signum). Augmented block correlation matrix of all the
+         data sets. Each block is of size signum x signum and the i-jth block is the correlation matrix between data set
+         i and data set j.
 
         """
+
         self.generateMixingMatrix()
         # if self.R.all() == 0:
         #     self.R = np.zeros((self.n_sets * self.signum, self.n_sets * self.signum))
@@ -182,4 +197,4 @@ class MultisetDataGen_CorrMeans(object):
         self.filterNoise()
         self.generateNoiseObservation()
 
-        return self.X, self.R, self.A, self.S
+        return self.X, self.R
