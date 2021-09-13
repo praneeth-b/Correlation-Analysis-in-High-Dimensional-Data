@@ -24,13 +24,18 @@ To install the toolbox and the required packages, (it is recommended to create a
 ```
 git clone https://github.com/praneeth-b/Correlation-Analysis-in-High-Dimensional-Data.git
 
-cd Correlation-Analysis-in-High-Dimensional-Data
+cd Correlation-Analysis-in-High-Dimensional-Data/
 
 python setup.py install
 
 ```
 
+## Repository Structure
 
+* `multipleDatasets.algo` provides the implentation of the algorithms presented in [1].
+* `multipleDatasets.simulateData` provides objects to create a correlation structure and create synthetic data for the prescribed correlation structure
+* `multipleDatasets.visualization` provides objects to visualize the correlation structures as graphs.
+* `multipleDatasets.examples` provides a tutorial style jupyter notebook which demonstrates the usage of this toolbox.
 
 
 ## References
