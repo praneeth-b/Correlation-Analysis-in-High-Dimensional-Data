@@ -56,8 +56,8 @@ class MultidimensionalCorrelationAnalysis:
         self.tot_dims = self.param['tot_dims']
 
         self.x_corrs = list(combinations(range(n_sets), 2))
-        if n_sets < 6:
-            self.x_corrs = list(reversed(self.x_corrs))
+        #if n_sets < 6:
+        self.x_corrs = list(reversed(self.x_corrs))
         self.n_combs = len(self.x_corrs)
         self.subspace_dim = np.array([self.param['tot_dims']] * n_sets)
         self.synthetic_structure = False
@@ -86,7 +86,14 @@ class MultidimensionalCorrelationAnalysis:
     def generate_structure(self, disp_struc=False):
         """
 
+        Args:
+          disp_struc: True/False . Whether to display a graph of generated structure.
+
+          Returns: The generated correlation structure
+
         """
+
+
 
         if 'percentage_corr' not in self.param:
             raise Exception("percentage_corr must be set to True or False")
@@ -135,7 +142,7 @@ class MultidimensionalCorrelationAnalysis:
             self.corr_truth = np.transpose(corr_truth)
             # visualize input correllation structure
             if disp_struc:
-                viz = visualization(np.transpose(self.p), u_struc, self.x_corrs, self.signum, self.n_sets)
+                viz = visualization(graph_matrix=np.transpose(self.p), num_dataset=self.n_sets)
                 viz.visualize("Generated corr structure")
                 ans = input("Continue with generated correlation structure?: y/n")
 
@@ -143,6 +150,8 @@ class MultidimensionalCorrelationAnalysis:
                 break
             attempts += 1
         self.synthetic_structure = True
+
+        return np.transpose(self.p)
 
     def test_data_gen(self, ):
         sigmaN = 1
@@ -166,7 +175,7 @@ class MultidimensionalCorrelationAnalysis:
         rec_vec = []
         for snr in self.param['SNR_vec']:
             sigmaN = self.param['sigmad'] / (10 ** (0.1 * snr))
-            print("SNR val = ", snr, " and sigmaN=", sigmaN)
+            print("SNR val = ", snr)
             precision = 0
             recall = 0
             for i in range(self.param['num_iter']):
@@ -191,7 +200,7 @@ class MultidimensionalCorrelationAnalysis:
             prec_vec.append(precision / self.param['num_iter'])
             rec_vec.append(recall / self.param['num_iter'])
 
-        plt.ion()
+        #plt.ion()
         if len(self.param['SNR_vec']) > 1:
             fig, (ax1, ax2) = plt.subplots(2, 1)
             fig.suptitle('Precion recall plots for various SNR')
@@ -203,16 +212,16 @@ class MultidimensionalCorrelationAnalysis:
             ax2.set_ylabel('Recall')
             ax2.set_xlabel('SNR')
             plt.show()
-        viz = visualization(self.corr_truth, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
-        viz.visualize("True Structure")
-        plt.ioff()
-        viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
-        viz_op.visualize("Estimated_structure")
+        # viz = visualization(graph_matrix=self.corr_truth,  num_dataset=self.n_sets, label_edge=False)
+        # viz.visualize("True Structure")
+        # plt.ioff()
+        # viz_op = visualization(graph_matrix=corr_est, num_dataset=self.n_sets, label_edge=False)
+        # viz_op.visualize("Estimated_structure")
 
 
         return corr_est, d_cap
 
-    def run_realData(self, data, disp_struc=True):
+    def run_realData(self, data):
         """
         Args:
             data (): must be in the form of a list of ndarrays. Dimensions must be consistent with n_sets and signum
@@ -230,15 +239,11 @@ class MultidimensionalCorrelationAnalysis:
         if 'threshold' not in self.param:
             self.param['threshold'] = 0
 
-        #data = np.real(data)
         corr_test = Eval_Evec_test(data, self.param['Pfa_eval'], self.param['Pfa_evec'],
                                    self.param['bootstrap_count'], self.param['threshold'])
         corr_est, d_cap, u_struc = corr_test.find_structure()
 
-        if disp_struc:
-            viz_op = visualization(corr_est, u_struc, self.x_corrs, self.signum, self.n_sets, label_edge=False)
-            viz_op.visualize("Estimated_structure")
-        return corr_est, u_struc, d_cap
+        return corr_est, d_cap
 
     def run(self, *argv, **kwargs):
         if self.simulation_data_type == 'real':

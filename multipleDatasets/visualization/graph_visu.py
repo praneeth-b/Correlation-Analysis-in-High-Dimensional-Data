@@ -4,6 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 plt.rcParams['figure.figsize'] = [12, 8]
 plt.rcParams['figure.dpi'] = 100 # 200 e.g. is really fine, but slower
+from itertools import combinations
 
 
 
@@ -15,7 +16,7 @@ class visualization(object):
 
     """
 
-    def __init__(self, corr_estimate_pairwise, corr_estimate=0, x_corr=0, num_signals=0, num_dataset=0, gtype=1,
+    def __init__(self, graph_matrix=0, num_dataset=0, gtype=1,
                  label_edge=True):
         """
 
@@ -26,11 +27,12 @@ class visualization(object):
             num_dataset (int): number of datasets
             label_edge (bool): setting to 'True' adds correlation coefficient as the weights of the edges
         """
-        self.graph_matrix = corr_estimate_pairwise
-        self.typ2graph_matrix = corr_estimate
-        self.edge_list = x_corr
-        self.signals = num_signals
+        self.graph_matrix = graph_matrix
+        #self.typ2graph_matrix = corr_estimate
+
         self.num_nodes = num_dataset
+        self.edge_list = list(reversed(list(combinations(range(self.num_nodes), 2))))  # x_corr
+        self.signals = self.graph_matrix.shape[0]   #num_signals
         self.type = gtype
         self.label_edge = label_edge
 
