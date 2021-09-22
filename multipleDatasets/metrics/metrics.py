@@ -31,12 +31,12 @@ class Metrics(object):
         false_negatives = ((self.corr_est - self.corr_truth) == -1).sum()
         true_negative = ((self.corr_truth + self.corr_est) == 0).sum()
         try:
-            precision = true_positive / (true_positive + false_positives)
+            precision = np.round(int(true_positive) / int(true_positive + false_positives))
         except ZeroDivisionError:
             precision = 0
 
         try:
-            recall = true_positive / (true_positive + false_negatives)
+            recall = np.round(int(true_positive) / int(true_positive + false_negatives))
         except ZeroDivisionError:
             recall = 0
 

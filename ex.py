@@ -15,19 +15,18 @@ estimator = MultidimensionalCorrelationAnalysis( n_sets, signum,
                                                  M,
                                                  tot_dims=signum,
                                                  num_iter=1,
-                                                 #full_corr=1,
-                                                 #corr_across=[3,2,],
-                                                 #corr_means=[0.8],
+
                                                 percentage_corr=True,
                                                 corr_input=[100, 75],
                                                 #corr_std=[0.1],
-                                                #SNR_vec = [10]
+                                                SNR_vec = [10]
                                                 )
 
 # synthetic data
 corr_truth = estimator.generate_structure(disp_struc=True)
-corr_estimate, d_hat = estimator.run()
+corr_estimate, d_hat = estimator.run(disp_struc=False)
 plt.ion()
+
 viz = visualization(graph_matrix=corr_truth,  num_dataset=n_sets, label_edge=False)
 viz.visualize("True Structure")
 plt.ioff()

@@ -153,7 +153,7 @@ class MultidimensionalCorrelationAnalysis:
 
         return np.transpose(self.p)
 
-    def test_data_gen(self, ):
+    def test_data_gen(self):
         sigmaN = 1
         datagen = MultisetDataGen_CorrMeans(self.subspace_dim, self.signum, self.x_corrs, self.param['mixing'],
                                             self.param['sigmad'], self.param['sigmaf'], sigmaN,
@@ -164,7 +164,7 @@ class MultidimensionalCorrelationAnalysis:
         X, R, A, S = datagen.generate()
         return X
 
-    def run_syntheticData(self):
+    def run_syntheticData(self, **kwargs):
         """
         Simulates data for the given correlation sturcture and runs the eval and evec tests on the data to estimate
         the correlation structure Returns:
@@ -200,7 +200,7 @@ class MultidimensionalCorrelationAnalysis:
             prec_vec.append(precision / self.param['num_iter'])
             rec_vec.append(recall / self.param['num_iter'])
 
-        #plt.ion()
+        plt.ion()
         if len(self.param['SNR_vec']) > 1:
             fig, (ax1, ax2) = plt.subplots(2, 1)
             fig.suptitle('Precion recall plots for various SNR')
@@ -212,11 +212,14 @@ class MultidimensionalCorrelationAnalysis:
             ax2.set_ylabel('Recall')
             ax2.set_xlabel('SNR')
             plt.show()
-        # viz = visualization(graph_matrix=self.corr_truth,  num_dataset=self.n_sets, label_edge=False)
-        # viz.visualize("True Structure")
-        # plt.ioff()
-        # viz_op = visualization(graph_matrix=corr_est, num_dataset=self.n_sets, label_edge=False)
-        # viz_op.visualize("Estimated_structure")
+        if 'disp_struc' not in kwargs:
+            kwargs['disp_struc']=False
+        if kwargs['disp_struc']:
+            viz = visualization(graph_matrix=self.corr_truth,  num_dataset=self.n_sets, label_edge=False)
+            viz.visualize("True Structure")
+            plt.ioff()
+            viz_op = visualization(graph_matrix=corr_est, num_dataset=self.n_sets, label_edge=False)
+            viz_op.visualize("Estimated_structure")
 
 
         return corr_est, d_cap
@@ -250,4 +253,4 @@ class MultidimensionalCorrelationAnalysis:
             return self.run_realData(argv[0], **kwargs)
 
         if self.simulation_data_type == 'synthetic':
-            return  self.run_syntheticData()
+            return  self.run_syntheticData(**kwargs)
