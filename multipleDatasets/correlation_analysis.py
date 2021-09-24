@@ -154,6 +154,12 @@ class MultidimensionalCorrelationAnalysis:
         return np.transpose(self.p)
 
     def test_data_gen(self):
+        """
+        Use this function to generate synthetic data as per the prescribed correlation structure and related parameters.
+        The generate_structure() function must be run before calling this function.
+        Returns: List of multiple datasets.
+
+        """
         sigmaN = 1
         datagen = MultisetDataGen_CorrMeans(self.subspace_dim, self.signum, self.x_corrs, self.param['mixing'],
                                             self.param['sigmad'], self.param['sigmaf'], sigmaN,
@@ -161,7 +167,7 @@ class MultidimensionalCorrelationAnalysis:
                                             self.n_sets, self.p,
                                             self.sigma_signals, self.M, self.param['MAcoeff'],
                                             self.param['ARcoeff'], self.param['Distr'], self.R)
-        X, R, A, S = datagen.generate()
+        X, R = datagen.generate()
         return X
 
     def run_syntheticData(self, **kwargs):
