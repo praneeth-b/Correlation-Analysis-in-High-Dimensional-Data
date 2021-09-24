@@ -1,3 +1,4 @@
+
 # Correlation Analysis in Multi-Modal Data
 A python implementation of the Techniques presented in '[1]' for model selection and correlation structure estimation in multiple datasets.
 Given a multi-modal dataset, this technique estimates the following:
@@ -42,4 +43,5 @@ python setup.py install
 [1] T. Hasija, C. Lameiro, T. Marrinan,  and P. J. Schreier,"Determining the Dimension and Structure of the Subspace Correlated Across Multiple Data Sets,".
 
 [2] T. Hasija, Y. Song, P. J. Schreier and D. Ramirez, "Bootstrap-based Detection of the Number of Signals Correlated across Multiple Data Sets," Proc. Asilomar Conf. Signals Syst. Computers, Pacific Grove, CA, USA, November 2016.
+
 
