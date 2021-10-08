@@ -2,6 +2,10 @@
 .idea/
 __pycache__
 *.pyc
+/build
+/dist
+*.egg-info
+
 
 #build-dirs
 *.egg-info
