@@ -43,8 +43,8 @@ class CorrelationStructureGen:
         self.n_sets = n_sets
         self.tot_corr = tot_corr
         self.x_corrs = list(combinations(range(self.n_sets), 2))
-        if self.n_sets < 5:
-            self.x_corrs = list(reversed(self.x_corrs))
+
+        self.x_corrs = list(reversed(self.x_corrs))
         self.n_combi = len(self.x_corrs)
         self.corr_means = corr_means
         self.corr_std = corr_std

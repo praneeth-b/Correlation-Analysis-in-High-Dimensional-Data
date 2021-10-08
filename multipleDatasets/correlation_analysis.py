@@ -93,7 +93,7 @@ class MultidimensionalCorrelationAnalysis:
 
         """
 
-
+        max_attempts = 5
 
         if 'percentage_corr' not in self.param:
             raise Exception("percentage_corr must be set to True or False")
@@ -115,12 +115,11 @@ class MultidimensionalCorrelationAnalysis:
             if 'corr_std' not in self.param:
                 self.param['corr_std'] = [0.1]*(self.param['full_corr'] + len(self.param['corr_across']))
 
-        try:
-            if any(y < 2 for y in self.param['corr_across']):
-                raise ValueError("Minimum value of corr_across = 2, i.e. atleast 1 pair of datasets ")
 
-        except ValueError as ve:
-            print(ve)
+        if any(y < 2 for y in self.param['corr_across']):
+            print("Minimum value of corr_across = 2, i.e. atleast 1 pair of datasets = {}%. Ignoring correlations for smaller percentage values".format(2/self.n_sets*100))
+
+
 
         tot_corr = np.append(np.tile(self.n_sets, [1, self.param['full_corr']]), self.param['corr_across'])
 
@@ -133,7 +132,7 @@ class MultidimensionalCorrelationAnalysis:
         ans = "n"
         u_struc = 0
 
-        while ans != "y" or attempts > 4:
+        while ans != "y" and attempts < max_attempts:
             self.p, self.sigma_signals, self.R = corr_obj.generate()
 
             corr_truth = np.zeros((self.n_combs, self.tot_dims))
@@ -146,9 +145,9 @@ class MultidimensionalCorrelationAnalysis:
                 viz.visualize("Generated corr structure")
                 ans = input("Continue with generated correlation structure?: y/n")
 
-            else:
-                break
             attempts += 1
+        if attempts >= max_attempts:
+            print("Maximum retries exceeded. Proceeding with previously generated structure")
         self.synthetic_structure = True
 
         return np.transpose(self.p)

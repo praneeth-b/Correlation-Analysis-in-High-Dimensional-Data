@@ -2,17 +2,17 @@ from multipleDatasets.correlation_analysis import MultidimensionalCorrelationAna
 from multipleDatasets.visualization.graph_visu import visualization
 import matplotlib.pyplot as plt
 
-n_sets = 4  # number of datasets
+n_sets = 5  # number of datasets
 signum = 5  # signals in each dataset
-tot_dims = 5
-M = 100  # data samples
+tot_dims = 10
+M = 500  # data samples
 estimator = MultidimensionalCorrelationAnalysis(n_sets, signum,
                                                 M,
                                                 tot_dims=signum,
                                                 num_iter=1,
                                                 percentage_corr=True,
-                                                corr_input=[100, 75],
-                                                SNR_vec=[10]
+                                                corr_input=[100, 75, 20],
+                                                SNR_vec=[15]
                                                 )
 
 # synthetic data
