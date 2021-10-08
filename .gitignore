@@ -3,5 +3,10 @@
 __pycache__
 *.pyc
 
+#build-dirs
+*.egg-info
+build/
+dist/
+
 # notebooks
 .ipynb_checkpoints/
