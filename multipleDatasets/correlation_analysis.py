@@ -28,7 +28,9 @@ default_params = {
     'Pfa_eval': 0.05,
     'Pfa_evec': 0.05,
     'bootstrap_count': 1000,
-    'threshold': 0
+    'threshold': 0,
+    'default_mean': 0.8,
+    'default_std': 0.01
 }
 
 
@@ -104,16 +106,16 @@ class MultidimensionalCorrelationAnalysis:
 
             if 'corr_means' not in self.param and 'corr_std' not in self.param:
 
-                self.param['corr_means'] = [0.8] * len(self.param['corr_input'])
-                self.param['corr_std'] = [0.1] * len(self.param['corr_input'])
+                self.param['corr_means'] = [default_params['default_mean']] * len(self.param['corr_input'])
+                self.param['corr_std'] = [default_params['default_std']] * len(self.param['corr_input'])
 
 
         else:
             assert 'full_corr' and 'corr_across' in self.param , " correlation structure of synthetic data must be provided"
             if 'corr_means' not in self.param:
-                self.param['corr_means'] = [0.8]*(self.param['full_corr'] + len(self.param['corr_across']))
+                self.param['corr_means'] = [default_params['default_mean']]*(self.param['full_corr'] + len(self.param['corr_across']))
             if 'corr_std' not in self.param:
-                self.param['corr_std'] = [0.1]*(self.param['full_corr'] + len(self.param['corr_across']))
+                self.param['corr_std'] = [default_params['default_std']]*(self.param['full_corr'] + len(self.param['corr_across']))
 
 
         if any(y < 2 for y in self.param['corr_across']):
@@ -135,7 +137,7 @@ class MultidimensionalCorrelationAnalysis:
         while ans != "y" and attempts < max_attempts:
             self.p, self.sigma_signals, self.R = corr_obj.generate()
 
-            corr_truth = np.zeros((self.n_combs, self.tot_dims))
+            corr_truth = np.zeros((self.n_combs, self.tot_dims))  # self.tot_dims
             idx_c = np.nonzero(self.p)
             corr_truth[idx_c] = 1  # this is the ground truth correllation.
             self.corr_truth = np.transpose(corr_truth)
